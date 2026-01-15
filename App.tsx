@@ -151,8 +151,7 @@ const App: React.FC = () => {
 
           {/* Technical Visuals Section - ENHANCED FOR PRINT SHARPNESS */}
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '25px', marginBottom: '30px' }}>
-             <div style={{ border: '2px solid #000', padding: '20px', borderRadius: '4px', background: '#fff', height: '280px' }}>
-                <p style={{ fontSize: '11pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '20px', color: '#000' }}>مخطط مقارنة الطاقة الاستيعابية للتخصصات</p>
+             <div style={{ border: '2px solid #000', padding: '20px', borderRadius: '4px', background: '#fff', height: '240px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <div style={{ width: '100%', height: '200px' }}>
                    <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={chartData} margin={{ top: 5, right: 10, left: -15, bottom: 5 }}>
@@ -178,8 +177,7 @@ const App: React.FC = () => {
                    </ResponsiveContainer>
                 </div>
              </div>
-             <div style={{ border: '2px solid #000', padding: '20px', borderRadius: '4px', background: '#fff', height: '280px' }}>
-                <p style={{ fontSize: '11pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '20px', color: '#000' }}>تحليل المحاضرات التدريبية النسبية</p>
+             <div style={{ border: '2px solid #000', padding: '20px', borderRadius: '4px', background: '#fff', height: '240px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <div style={{ width: '100%', height: '200px' }}>
                    <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
