@@ -12,7 +12,6 @@
       body {
         font-family: 'Tajawal', sans-serif;
         background-color: #f8fafc;
-        scroll-behavior: smooth;
         margin: 0;
       }
       .glass-morphism {
@@ -31,27 +30,23 @@
         background: #cbd5e1;
         border-radius: 10px;
       }
-      .card-hover {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      /* إعدادات حاوية التقرير المخفية */
+      .pdf-container-hidden {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 210mm;
+        z-index: -1000;
+        visibility: hidden;
+        height: 0;
+        overflow: hidden;
       }
-      .card-hover:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.05);
-      }
-      /* إعدادات الطباعة والتقرير */
+
+      /* تنسيق خاص للطباعة */
       @media print {
         .no-print { display: none !important; }
         .print-only { display: block !important; }
-        body { background: white; }
-      }
-      #pdf-report {
-        width: 210mm;
-        min-height: 297mm;
-        padding: 15mm;
-        background: white;
-        position: absolute;
-        left: -9999px;
-        top: -9999px;
       }
     </style>
     <script type="importmap">

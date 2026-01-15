@@ -1,11 +1,11 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell 
+  BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell 
 } from 'recharts';
 import { 
   Settings, Users, Briefcase, BarChart3, PieChart as PieIcon, Sparkles, Printer, RefreshCcw, UserCheck, 
-  TrendingUp, Activity, ChevronRight, Calculator, Plus, Trash2, FileText, Download
+  TrendingUp, Activity, Calculator, Plus, Trash2, FileText, Download
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SpecializationData, DistributionResult, GeminiAdvice, SpecializationResult } from './types';
@@ -74,18 +74,43 @@ const App: React.FC = () => {
     setLoading(false);
   };
 
-  const downloadPDF = () => {
-    if (!reportRef.current) return;
+  const downloadPDF = async () => {
+    if (!reportRef.current || !result) {
+      alert("البيانات غير مكتملة، يرجى إجراء التوزيع أولاً.");
+      return;
+    }
+
     const element = reportRef.current;
+    
+    // إظهار العنصر مؤقتاً للمكتبة
+    element.style.visibility = 'visible';
+    element.style.height = 'auto';
+    element.style.overflow = 'visible';
+
     const opt = {
-      margin: 0,
-      filename: `تقرير_توزيع_المتدربين_${new Date().toLocaleDateString('ar-SA')}.pdf`,
+      margin: 10,
+      filename: `تقرير_توزيع_المتدربين_${new Date().toISOString().slice(0,10)}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true, 
+        letterRendering: true,
+        logging: false
+      },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    // @ts-ignore
-    window.html2pdf().from(element).set(opt).save();
+
+    try {
+      // @ts-ignore
+      await window.html2pdf().from(element).set(opt).save();
+    } catch (err) {
+      console.error("PDF Export Error:", err);
+    } finally {
+      // إعادة الإخفاء بعد الانتهاء
+      element.style.visibility = 'hidden';
+      element.style.height = '0';
+      element.style.overflow = 'hidden';
+    }
   };
 
   useEffect(() => {
@@ -93,119 +118,84 @@ const App: React.FC = () => {
   }, [calculateDistribution]);
 
   const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
-  const chartData = result?.specs.map(s => ({ name: s.name, متدربون: s.traineesCount, مدربون: s.trainersCount })) || [];
+  const chartData = result?.specs.map(s => ({ name: s.name, count: s.traineesCount })) || [];
   const pieData = result?.specs.map(s => ({ name: s.name, value: s.traineesCount })) || [];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-['Tajawal']">
       
-      {/* Hidden PDF Report Template */}
-      <div id="pdf-report" ref={reportRef} dir="rtl">
-        <div className="border-[3px] border-slate-900 p-8 min-h-[280mm] flex flex-col">
-          {/* Header */}
-          <div className="flex justify-between items-start border-b-2 border-slate-200 pb-6 mb-6">
-            <div className="space-y-1">
-              <h1 className="text-2xl font-black text-slate-900">التقرير الفني لتوزيع القبول</h1>
-              <p className="text-sm font-bold text-slate-500">قسم التقنية الميكانيكية - الكلية التقنية</p>
-              <p className="text-xs text-slate-400">تاريخ التقرير: {new Date().toLocaleDateString('ar-SA')}</p>
+      {/* Hidden PDF Report Template Container */}
+      <div className="pdf-container-hidden" ref={reportRef} dir="rtl">
+        <div style={{ padding: '20px', background: 'white', width: '190mm', margin: 'auto' }}>
+          {/* PDF Content */}
+          <div style={{ border: '2px solid #000', padding: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #eee', paddingBottom: '15px', marginBottom: '20px' }}>
+              <div>
+                <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>التقرير الفني لتوزيع القبول</h1>
+                <p style={{ color: '#666', fontSize: '14px' }}>قسم التقنية الميكانيكية | الكلية التقنية</p>
+                <p style={{ color: '#999', fontSize: '12px' }}>التاريخ: {new Date().toLocaleDateString('ar-SA')}</p>
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666' }}>إجمالي المستهدف</p>
+                <p style={{ fontSize: '24px', fontWeight: 'black' }}>{totalTrainees} متدرب</p>
+              </div>
             </div>
-            <div className="text-left bg-slate-900 text-white p-3 rounded-lg">
-              <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">إجمالي المستهدف</p>
-              <p className="text-xl font-black">{totalTrainees} متدرب</p>
-            </div>
-          </div>
 
-          {/* Section: Summary */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <p className="text-[10px] font-bold text-slate-400 mb-1">إجمالي المدربين</p>
-              <p className="text-lg font-black">{result?.totalTrainers}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '25px' }}>
+              <div style={{ background: '#f9fafb', padding: '15px', borderRadius: '10px', border: '1px solid #eee' }}>
+                <p style={{ fontSize: '10px', color: '#999' }}>إجمالي المدربين</p>
+                <p style={{ fontSize: '18px', fontWeight: 'bold' }}>{result?.totalTrainers}</p>
+              </div>
+              <div style={{ background: '#f9fafb', padding: '15px', borderRadius: '10px', border: '1px solid #eee' }}>
+                <p style={{ fontSize: '10px', color: '#999' }}>متوسط النصاب</p>
+                <p style={{ fontSize: '18px', fontWeight: 'bold' }}>{result?.averageRatio.toFixed(1)} ط/م</p>
+              </div>
+              <div style={{ background: '#f9fafb', padding: '15px', borderRadius: '10px', border: '1px solid #eee' }}>
+                <p style={{ fontSize: '10px', color: '#999' }}>التخصصات</p>
+                <p style={{ fontSize: '18px', fontWeight: 'bold' }}>{specs.length}</p>
+              </div>
             </div>
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <p className="text-[10px] font-bold text-slate-400 mb-1">متوسط النصاب</p>
-              <p className="text-lg font-black">{result?.averageRatio.toFixed(1)} ط/م</p>
-            </div>
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <p className="text-[10px] font-bold text-slate-400 mb-1">عدد التخصصات</p>
-              <p className="text-lg font-black">{specs.length}</p>
-            </div>
-          </div>
 
-          {/* Section: Table */}
-          <div className="mb-6">
-            <h3 className="text-sm font-black mb-3 border-r-4 border-blue-600 pr-2">جدول توزيع المقاعد المعتمد</h3>
-            <table className="w-full text-sm border-collapse">
+            <h3 style={{ fontSize: '16px', fontWeight: 'bold', borderRight: '4px solid #2563eb', paddingRight: '10px', marginBottom: '15px' }}>جدول التوزيع التفصيلي</h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '30px' }}>
               <thead>
-                <tr className="bg-slate-100 text-slate-600">
-                  <th className="p-2 border border-slate-200 text-right">التخصص</th>
-                  <th className="p-2 border border-slate-200 text-center">عدد المدربين</th>
-                  <th className="p-2 border border-slate-200 text-center">النسبة المئوية</th>
-                  <th className="p-2 border border-slate-200 text-center">المقاعد المخصصة</th>
+                <tr style={{ background: '#f3f4f6' }}>
+                  <th style={{ border: '1px solid #ddd', padding: '10px', textAlign: 'right' }}>التخصص</th>
+                  <th style={{ border: '1px solid #ddd', padding: '10px', textAlign: 'center' }}>المدربون</th>
+                  <th style={{ border: '1px solid #ddd', padding: '10px', textAlign: 'center' }}>النسبة</th>
+                  <th style={{ border: '1px solid #ddd', padding: '10px', textAlign: 'center' }}>المقاعد المعتمدة</th>
                 </tr>
               </thead>
               <tbody>
-                {result?.specs.map((s, i) => (
-                  <tr key={s.id} className="hover:bg-slate-50">
-                    <td className="p-2 border border-slate-200 font-bold">{s.name}</td>
-                    <td className="p-2 border border-slate-200 text-center">{s.trainersCount}</td>
-                    <td className="p-2 border border-slate-200 text-center">{s.percentage}%</td>
-                    <td className="p-2 border border-slate-200 text-center font-black text-blue-700">{s.traineesCount}</td>
+                {result?.specs.map((s) => (
+                  <tr key={s.id}>
+                    <td style={{ border: '1px solid #ddd', padding: '10px', fontWeight: 'bold' }}>{s.name}</td>
+                    <td style={{ border: '1px solid #ddd', padding: '10px', textAlign: 'center' }}>{s.trainersCount}</td>
+                    <td style={{ border: '1px solid #ddd', padding: '10px', textAlign: 'center' }}>{s.percentage}%</td>
+                    <td style={{ border: '1px solid #ddd', padding: '10px', textAlign: 'center', fontWeight: 'black', color: '#2563eb' }}>{s.traineesCount}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
 
-          {/* Section: Charts Side-by-Side */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-white p-4 border border-slate-200 rounded-xl h-64">
-              <p className="text-xs font-bold text-center mb-4">توزيع المقاعد حسب التخصص</p>
-              <ResponsiveContainer width="100%" height="80%">
-                <BarChart data={chartData}>
-                  <XAxis dataKey="name" tick={{fontSize: 8}} />
-                  <YAxis tick={{fontSize: 8}} />
-                  <Bar dataKey="متدربون" fill="#2563eb" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="bg-white p-4 border border-slate-200 rounded-xl h-64">
-              <p className="text-xs font-bold text-center mb-4">النسب المئوية الإجمالية</p>
-              <ResponsiveContainer width="100%" height="80%">
-                <PieChart>
-                  <Pie data={pieData} innerRadius={35} outerRadius={55} dataKey="value">
-                    {pieData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Section: AI Advice */}
-          <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 flex-grow">
-            <h3 className="text-sm font-black text-indigo-900 mb-3 flex items-center gap-2">
-              <Sparkles size={16} /> التوصيات الاستراتيجية والتحليل الفني
-            </h3>
-            {advice ? (
-              <div className="space-y-4">
-                <p className="text-xs leading-relaxed text-indigo-900 font-medium text-justify">{advice.summary}</p>
-                <div className="grid grid-cols-2 gap-3">
+            {advice && (
+              <div style={{ background: '#eef2ff', padding: '20px', borderRadius: '15px', border: '1px solid #c7d2fe' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: '#312e81', marginBottom: '10px' }}>التحليل الفني والتوصيات الذكية (AI)</h3>
+                <p style={{ fontSize: '12px', lineHeight: '1.6', color: '#3730a3', marginBottom: '15px' }}>{advice.summary}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   {advice.recommendations.map((rec, i) => (
-                    <div key={i} className="flex gap-2 items-start text-[10px] text-slate-700">
-                      <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center shrink-0 font-bold text-indigo-600">{i+1}</div>
-                      <p>{rec}</p>
+                    <div key={i} style={{ fontSize: '10px', display: 'flex', gap: '5px' }}>
+                      <span style={{ fontWeight: 'bold' }}>•</span> {rec}
                     </div>
                   ))}
                 </div>
               </div>
-            ) : (
-              <p className="text-[10px] text-indigo-400 text-center py-8">يرجى الضغط على "طلب استشارة Gemini" في الواجهة الرئيسية لتضمين التحليل الذكي هنا.</p>
             )}
-          </div>
-
-          {/* Footer */}
-          <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center opacity-50">
-            <p className="text-[9px] font-bold">نظام METRIC HUB | تطوير م. عبدالله الزهراني</p>
-            <p className="text-[9px]">وثيقة رقم: {Math.floor(Math.random() * 900000) + 100000}</p>
+            
+            <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#999' }}>
+              <p>نظام METRIC HUB | تطوير م. عبدالله الزهراني</p>
+              <p>مخصص لأغراض الاعتماد الأكاديمي</p>
+            </div>
           </div>
         </div>
       </div>
@@ -213,7 +203,7 @@ const App: React.FC = () => {
       {/* Navbar */}
       <nav className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50 glass-morphism no-print">
         <div className="flex items-center gap-3">
-          <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-200">
+          <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg">
             <Briefcase size={24} />
           </div>
           <div>
@@ -224,10 +214,10 @@ const App: React.FC = () => {
         <div className="flex items-center gap-4">
           <button 
             onClick={downloadPDF}
-            className="hidden md:flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl hover:bg-black transition-all text-sm font-bold shadow-lg"
+            className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl hover:bg-black transition-all text-sm font-bold shadow-lg"
           >
             <Download size={18} />
-            <span>تحميل التقرير PDF</span>
+            <span className="hidden md:inline">تحميل التقرير PDF</span>
           </button>
           <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full text-slate-600 text-xs font-semibold">
             <UserCheck size={16} className="text-emerald-500" />
@@ -263,17 +253,16 @@ const App: React.FC = () => {
                   ))}
                 </AnimatePresence>
               </div>
-              <button onClick={calculateDistribution} className="w-full group bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 overflow-hidden relative"><Calculator size={20} className="group-hover:rotate-12 transition-transform" /><span>إعادة احتساب التوزيع</span></button>
+              <button onClick={calculateDistribution} className="w-full group bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 overflow-hidden relative"><Calculator size={20} className="group-hover:rotate-12 transition-transform" /><span>تحديث التوزيع</span></button>
             </div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-gradient-to-br from-indigo-700 via-blue-800 to-slate-900 p-6 rounded-3xl shadow-2xl text-white relative overflow-hidden">
-            <div className="relative z-10 space-y-4">
-              <div className="flex items-center gap-2"><Sparkles size={20} className="text-indigo-300" /><h3 className="font-bold text-lg">التحليل الاستراتيجي</h3></div>
-              <p className="text-sm text-indigo-100/80 leading-relaxed">استخدم الذكاء الاصطناعي لمراجعة توزيع المقاعد وضمان جودة المخرجات التدريبية.</p>
-              <button onClick={handleGetAdvice} disabled={loading} className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 font-bold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50">
-                {loading ? <RefreshCcw className="animate-spin" size={20} /> : 'طلب استشارة Gemini'}
-              </button>
-            </div>
+          
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-gradient-to-br from-indigo-700 to-blue-900 p-6 rounded-3xl shadow-2xl text-white space-y-4">
+            <div className="flex items-center gap-2"><Sparkles size={20} className="text-indigo-300" /><h3 className="font-bold text-lg">التحليل الاستراتيجي</h3></div>
+            <p className="text-sm text-indigo-100/80 leading-relaxed">استخدم الذكاء الاصطناعي لمراجعة توزيع المقاعد وضمان جودة المخرجات التدريبية.</p>
+            <button onClick={handleGetAdvice} disabled={loading} className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 font-bold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+              {loading ? <RefreshCcw className="animate-spin" size={20} /> : 'طلب استشارة Gemini'}
+            </button>
           </motion.div>
         </aside>
 
@@ -300,14 +289,30 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 no-print">
                   <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200">
                     <div className="flex items-center gap-3 mb-8"><BarChart3 size={20} /><h3 className="font-bold text-lg">مقارنة التخصصات</h3></div>
-                    <div className="h-64"><ResponsiveContainer width="100%" height="100%"><BarChart data={chartData}><XAxis dataKey="name" tick={{fontSize: 10}} /><YAxis tick={{fontSize: 10}} /><Bar dataKey="متدربون" fill="#2563eb" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></div>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={chartData}>
+                          <XAxis dataKey="name" tick={{fontSize: 10}} />
+                          <YAxis tick={{fontSize: 10}} />
+                          <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                   <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200">
                     <div className="flex items-center gap-3 mb-8"><PieIcon size={20} /><h3 className="font-bold text-lg">تحليل الحصص</h3></div>
-                    <div className="h-64"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={pieData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{pieData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}</Pie></PieChart></ResponsiveContainer></div>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={pieData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                            {pieData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+                          </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -315,15 +320,15 @@ const App: React.FC = () => {
           </AnimatePresence>
 
           {advice && (
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-[2.5rem] shadow-xl border border-indigo-50 overflow-hidden">
-              <div className="bg-gradient-to-r from-indigo-50 via-white to-white px-8 py-8 border-b border-indigo-50 flex items-center justify-between">
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-[2.5rem] shadow-xl border border-indigo-50 overflow-hidden no-print">
+              <div className="bg-gradient-to-r from-indigo-50 to-white px-8 py-8 border-b border-indigo-50 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 bg-indigo-600 rounded-[1.25rem] flex items-center justify-center text-white shadow-xl shadow-indigo-200"><Sparkles size={28} /></div>
-                  <div><h3 className="text-2xl font-black text-slate-900 leading-tight">التقرير الفني الذكي</h3><p className="text-indigo-600 text-sm font-bold flex items-center gap-1 mt-1 uppercase tracking-wider">تحليل مدعوم بـ Gemini AI</p></div>
+                  <div><h3 className="text-2xl font-black text-slate-900 leading-tight">التقرير الفني الذكي</h3><p className="text-indigo-600 text-sm font-bold uppercase tracking-wider">تحليل Gemini AI</p></div>
                 </div>
               </div>
               <div className="p-8 lg:p-10 space-y-10">
-                <p className="text-lg text-slate-700 font-medium leading-[1.8] border-r-4 border-indigo-500 pr-6 text-justify">{advice.summary}</p>
+                <p className="text-lg text-slate-700 font-medium leading-[1.8] border-r-4 border-indigo-500 pr-6">{advice.summary}</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {advice.recommendations.map((rec, idx) => (
                     <div key={idx} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex gap-4 items-start">
