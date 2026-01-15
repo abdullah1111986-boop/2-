@@ -39,7 +39,7 @@ export const getSmartAdvice = async (data: DistributionResult) => {
       تفاصيل التخصصات:
       ${specsDescription}
 
-      حلل العبء التدريبي وقدم نصائح لتحسين الجودة التعليمية والعدالة في التوزيع بناءً على هذه الأرقام باللغة العربية.`,
+      حلل العبء التدريبي وقدم نصائح لتحسين الجودة التعليمية والعدالة في التوزيع بناءً على هذه الأرقام باللغة العربية. استخدم مصطلح "محاضرات تدريبية" بدلاً من "حصص".`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -63,7 +63,7 @@ export const getSmartAdvice = async (data: DistributionResult) => {
     console.error("Gemini API Error:", error);
     return {
       summary: "حدث خطأ أثناء تحليل البيانات ذكياً. يرجى مراجعة التوزيع يدوياً وفقاً لمعايير القسم.",
-      recommendations: ["تأكد من موازنة نصاب المدربين حسب اللوائح.", "راجع الطاقة الاستيعابية للقاعات والمعامل."],
+      recommendations: ["تأكد من موازنة نصاب المدربين حسب اللوائح.", "راجع الطاقة الاستيعابية للقاعات والمعامل وتوزيع المحاضرات التدريبية."],
       efficiencyScore: 50
     };
   }

@@ -166,7 +166,7 @@ const App: React.FC = () => {
                 </div>
              </div>
              <div style={{ border: '1.5px solid #000', padding: '15px', borderRadius: '4px', background: '#fff' }}>
-                <p style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '15px', color: '#000' }}>تحليل الحصص النسبية</p>
+                <p style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '15px', color: '#000' }}>تحليل المحاضرات التدريبية النسبية</p>
                 <div style={{ width: '100%', height: '160px' }}>
                    <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -201,7 +201,7 @@ const App: React.FC = () => {
              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 {(advice?.recommendations || [
                    "موازنة نصاب الساعات لكل مدرب وفق اللائحة المنظمة.",
-                   "توزيع الحصص العملية على المعامل المتاحة بكفاءة.",
+                   "توزيع المحاضرات التدريبية العملية على المعامل المتاحة بكفاءة.",
                    "التأكد من توفر المواد الاستهلاكية لكل تخصص مهني.",
                    "مراقبة جودة مخرجات التخصصات ذات الكثافة العالية."
                 ]).slice(0, 4).map((rec, i) => (
@@ -373,7 +373,7 @@ const App: React.FC = () => {
                     <div className="flex items-center gap-4 mb-10">
                        <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600"><PieIcon size={24} /></div>
                        <div>
-                         <h3 className="font-black text-xl text-slate-900">الحصص النسبية</h3>
+                         <h3 className="font-black text-xl text-slate-900">المحاضرات التدريبية النسبية</h3>
                          <p className="text-xs text-slate-400 font-bold">توزيع القبول كنسبة مئوية</p>
                        </div>
                     </div>
