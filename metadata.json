@@ -1,0 +1,5 @@
+{
+  "name": "Mechanical Tech Enrollment Optimizer",
+  "description": "An intelligent tool to distribute trainee seats fairly between mechanical technology specializations based on trainer-to-trainee ratios and department capacity.",
+  "requestFramePermissions": []
+}
