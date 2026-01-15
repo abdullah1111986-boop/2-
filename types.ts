@@ -1,20 +1,23 @@
 
 export interface SpecializationData {
+  id: string;
   name: string;
   trainersCount: number;
 }
 
+export interface SpecializationResult {
+  id: string;
+  name: string;
+  traineesCount: number;
+  percentage: number;
+  trainersCount: number;
+}
+
 export interface DistributionResult {
-  specAName: string;
-  specBName: string;
-  specATrainees: number;
-  specBTrainees: number;
-  specAPercentage: number;
-  specBPercentage: number;
+  specs: SpecializationResult[];
   totalTrainers: number;
   totalTrainees: number;
-  ratioA: number;
-  ratioB: number;
+  averageRatio: number;
 }
 
 export interface GeminiAdvice {

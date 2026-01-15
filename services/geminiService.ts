@@ -6,13 +6,22 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
 export const getSmartAdvice = async (data: DistributionResult) => {
   try {
+    const specsDescription = data.specs.map(s => 
+      `- تخصص ${s.name}: عدد المدربين ${s.trainersCount}، عدد المتدربين المقترح ${s.traineesCount} (${s.percentage}%).`
+    ).join('\n');
+
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `بصفتك خبير في الإدارة الأكاديمية والتقنية، قم بتحليل التوزيع التالي لقسم التقنية الميكانيكية:
-      التخصص الأول: ${data.specAName}، عدد المدربين: ${Math.round(data.totalTrainers * (data.ratioA / 100))}، عدد المتدربين المقترح: ${data.specATrainees}.
-      التخصص الثاني: ${data.specBName}، عدد المدربين: ${Math.round(data.totalTrainers * (data.ratioB / 100))}، عدد المتدربين المقترح: ${data.specBTrainees}.
-      إجمالي المتدربين: ${data.totalTrainees}.
-      حلل العبء التدريبي وقدم نصائح لتحسين الجودة التعليمية بناءً على هذه الأرقام باللغة العربية.`,
+      
+      إجمالي المتدربين المستهدف: ${data.totalTrainees}
+      إجمالي عدد المدربين: ${data.totalTrainers}
+      متوسط نصيب المدرب: ${data.averageRatio.toFixed(2)} متدرب.
+
+      تفاصيل التخصصات:
+      ${specsDescription}
+
+      حلل العبء التدريبي وقدم نصائح لتحسين الجودة التعليمية والعدالة في التوزيع بناءً على هذه الأرقام باللغة العربية.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -36,7 +45,7 @@ export const getSmartAdvice = async (data: DistributionResult) => {
     console.error("Gemini API Error:", error);
     return {
       summary: "عذراً، حدث خطأ أثناء جلب النصائح الذكية. يرجى مراجعة التوزيع يدوياً.",
-      recommendations: ["تأكد من عدم تجاوز نسبة 20 متدرب لكل مدرب.", "راجع خطة القبول السنوية."],
+      recommendations: ["تأكد من عدم تجاوز النصاب التدريبي المعتمد.", "راجع خطة القبول السنوية بالتنسيق مع رؤساء التخصصات."],
       efficiencyScore: 0
     };
   }
