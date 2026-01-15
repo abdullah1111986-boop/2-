@@ -40,8 +40,9 @@
           background: white !important; 
           margin: 0 !important; 
           padding: 0 !important; 
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-scheme: light;
         }
 
         #printable-report {
@@ -49,24 +50,30 @@
           width: 210mm !important;
           height: auto !important;
           visibility: visible !important;
-          position: absolute !important;
-          left: 0 !important;
-          top: 0 !important;
+          position: relative !important;
           margin: 0 !important;
           padding: 0 !important;
           z-index: 9999 !important;
         }
 
-        /* إخفاء أي تذييلات أو رؤوس يضيفها المتصفح تلقائياً */
         @page {
           size: A4;
           margin: 0mm;
         }
+
+        /* تحسين وضوح الرسوم البيانية SVG عند الطباعة */
+        svg {
+          shape-rendering: geometricPrecision;
+          text-rendering: geometricPrecision;
+        }
       }
 
-      /* إخفاء التقرير في العرض العادي */
+      /* إخفاء التقرير في العرض العادي مع الحفاظ على الأبعاد للرسوم البيانية */
       #printable-report {
-        display: none;
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        visibility: hidden;
       }
     </style>
     <script type="importmap">

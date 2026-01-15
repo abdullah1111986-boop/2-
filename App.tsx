@@ -87,7 +87,7 @@ const App: React.FC = () => {
       
       {/* 📄 OFFICIAL ENGINEERING REPORT (Visible only on Print) */}
       <div id="printable-report" className="print-only" dir="rtl">
-        <div style={{ width: '210mm', minHeight: '297mm', padding: '15mm', background: 'white', position: 'relative' }}>
+        <div style={{ width: '210mm', minHeight: '280mm', padding: '15mm', background: 'white', position: 'relative' }}>
           
           {/* Official Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px double #000', paddingBottom: '10px', marginBottom: '20px' }}>
@@ -98,81 +98,89 @@ const App: React.FC = () => {
             </div>
             <div style={{ textAlign: 'center' }}>
               <h1 style={{ fontSize: '16pt', fontWeight: '900', margin: 0 }}>تقرير توزيع القبول الهندسي</h1>
-              <p style={{ fontSize: '10pt', color: '#666' }}>نموذج توزيع المقاعد المعتمد بناءً على الكادر التدريبي</p>
+              <p style={{ fontSize: '10pt', color: '#333' }}>نموذج توزيع المقاعد المعتمد بناءً على الكادر التدريبي</p>
             </div>
             <div style={{ textAlign: 'left', fontSize: '9pt', color: '#333' }}>
               <p style={{ margin: 0 }}>التاريخ: {new Date().toLocaleDateString('ar-SA')}</p>
-              <p style={{ margin: 0 }}>رقم المعاملة: {Math.floor(Math.random() * 90000) + 10000}</p>
             </div>
           </div>
 
           {/* Report Metadata */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '25px' }}>
-            <div style={{ border: '1px solid #000', padding: '10px', textAlign: 'center' }}>
+            <div style={{ border: '1.5px solid #000', padding: '10px', textAlign: 'center' }}>
               <p style={{ fontSize: '9pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>إجمالي المقبولين</p>
               <p style={{ fontSize: '14pt', fontWeight: '900', margin: 0 }}>{totalTrainees}</p>
             </div>
-            <div style={{ border: '1px solid #000', padding: '10px', textAlign: 'center' }}>
+            <div style={{ border: '1.5px solid #000', padding: '10px', textAlign: 'center' }}>
               <p style={{ fontSize: '9pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>إجمالي المدربين</p>
               <p style={{ fontSize: '14pt', fontWeight: '900', margin: 0 }}>{result?.totalTrainers}</p>
             </div>
-            <div style={{ border: '1px solid #000', padding: '10px', textAlign: 'center' }}>
+            <div style={{ border: '1.5px solid #000', padding: '10px', textAlign: 'center' }}>
               <p style={{ fontSize: '9pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>النصاب المعياري</p>
               <p style={{ fontSize: '14pt', fontWeight: '900', margin: 0 }}>{result?.averageRatio.toFixed(1)} <span style={{fontSize: '8pt'}}>ط/م</span></p>
             </div>
-            <div style={{ border: '1px solid #000', padding: '10px', textAlign: 'center' }}>
+            <div style={{ border: '1.5px solid #000', padding: '10px', textAlign: 'center' }}>
               <p style={{ fontSize: '9pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>كفاءة الموازنة</p>
-              <p style={{ fontSize: '14pt', fontWeight: '900', margin: 0, color: '#15803d' }}>{advice?.efficiencyScore || '92'}%</p>
+              <p style={{ fontSize: '14pt', fontWeight: '900', margin: 0 }}>{advice?.efficiencyScore || '92'}%</p>
             </div>
           </div>
 
           {/* Detailed Distribution Table */}
           <div style={{ marginBottom: '25px' }}>
-            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderRight: '5px solid #000', paddingRight: '10px', marginBottom: '10px', background: '#f1f5f9', padding: '5px' }}>أولاً: بيانات توزيع المقاعد التدريبية</h3>
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderRight: '5px solid #000', paddingRight: '10px', marginBottom: '10px', background: '#f8fafc', border: '1px solid #000', borderRightWidth: '5px', padding: '8px' }}>أولاً: بيانات توزيع المقاعد التدريبية</h3>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
               <thead>
-                <tr style={{ background: '#e2e8f0', color: '#000' }}>
-                  <th style={{ border: '1px solid #000', padding: '10px', textAlign: 'right' }}>مسمى التخصص</th>
-                  <th style={{ border: '1px solid #000', padding: '10px', textAlign: 'center' }}>عدد أعضاء هيئة التدريب</th>
-                  <th style={{ border: '1px solid #000', padding: '10px', textAlign: 'center' }}>النسبة المئوية العادلة</th>
-                  <th style={{ border: '1px solid #000', padding: '10px', textAlign: 'center' }}>إجمالي القبول المعتمد</th>
+                <tr style={{ background: '#f1f5f9', color: '#000' }}>
+                  <th style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'right' }}>مسمى التخصص</th>
+                  <th style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center' }}>عدد أعضاء هيئة التدريب</th>
+                  <th style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center' }}>النسبة المئوية العادلة</th>
+                  <th style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center' }}>إجمالي القبول المعتمد</th>
                 </tr>
               </thead>
               <tbody>
                 {result?.specs.map((s) => (
                   <tr key={s.id}>
-                    <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold' }}>{s.name}</td>
-                    <td style={{ border: '1px solid #000', padding: '10px', textAlign: 'center' }}>{s.trainersCount}</td>
-                    <td style={{ border: '1px solid #000', padding: '10px', textAlign: 'center' }}>{s.percentage}%</td>
-                    <td style={{ border: '1px solid #000', padding: '10px', textAlign: 'center', fontWeight: '900' }}>{s.traineesCount}</td>
+                    <td style={{ border: '1.5px solid #000', padding: '12px', fontWeight: 'bold' }}>{s.name}</td>
+                    <td style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center' }}>{s.trainersCount}</td>
+                    <td style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center' }}>{s.percentage}%</td>
+                    <td style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center', fontWeight: '900' }}>{s.traineesCount}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          {/* Technical Visuals Section */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px', marginBottom: '25px', height: '180px' }}>
-             <div style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '4px' }}>
-                <p style={{ fontSize: '9pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '10px' }}>مخطط مقارنة الطاقة الاستيعابية للتخصصات</p>
-                <div style={{ width: '100%', height: '140px' }}>
-                   <ResponsiveContainer>
-                      <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="2 2" vertical={false} stroke="#ccc" />
-                        <XAxis dataKey="name" tick={{fontSize: 8, fontWeight: 'bold'}} axisLine={true} />
-                        <YAxis tick={{fontSize: 8}} axisLine={true} />
-                        <Bar dataKey="count" fill="#334155" radius={[2, 2, 0, 0]} barSize={25} />
+          {/* Technical Visuals Section - FIXED FOR PRINT VISIBILITY */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px', marginBottom: '25px', minHeight: '220px' }}>
+             <div style={{ border: '1.5px solid #000', padding: '15px', borderRadius: '4px', background: '#fff' }}>
+                <p style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '15px', color: '#000' }}>مخطط مقارنة الطاقة الاستيعابية للتخصصات</p>
+                <div style={{ width: '100%', height: '160px' }}>
+                   <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#666" />
+                        <XAxis dataKey="name" tick={{fontSize: 9, fontWeight: 'bold', fill: '#000'}} axisLine={{ stroke: '#000' }} />
+                        <YAxis tick={{fontSize: 9, fill: '#000'}} axisLine={{ stroke: '#000' }} />
+                        <Bar dataKey="count" fill="#1e293b" radius={[2, 2, 0, 0]} barSize={35} isAnimationActive={false} />
                       </BarChart>
                    </ResponsiveContainer>
                 </div>
              </div>
-             <div style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '4px' }}>
-                <p style={{ fontSize: '9pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '10px' }}>تحليل الحصص النسبية</p>
-                <div style={{ width: '100%', height: '140px' }}>
-                   <ResponsiveContainer>
+             <div style={{ border: '1.5px solid #000', padding: '15px', borderRadius: '4px', background: '#fff' }}>
+                <p style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '15px', color: '#000' }}>تحليل الحصص النسبية</p>
+                <div style={{ width: '100%', height: '160px' }}>
+                   <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
-                        <Pie data={pieData} innerRadius={35} outerRadius={55} paddingAngle={2} dataKey="value">
-                          {pieData.map((_, index) => <Cell key={index} fill={index % 2 === 0 ? '#1e293b' : '#64748b'} />)}
+                        <Pie 
+                          data={pieData} 
+                          innerRadius={40} 
+                          outerRadius={65} 
+                          paddingAngle={3} 
+                          dataKey="value" 
+                          isAnimationActive={false}
+                          stroke="#000"
+                          strokeWidth={1}
+                        >
+                          {pieData.map((_, index) => <Cell key={index} fill={index % 2 === 0 ? '#0f172a' : '#475569'} />)}
                         </Pie>
                       </PieChart>
                    </ResponsiveContainer>
@@ -181,46 +189,35 @@ const App: React.FC = () => {
           </div>
 
           {/* AI Engineering Recommendations */}
-          <div style={{ border: '1px solid #000', padding: '15px', borderRadius: '4px', background: '#fafafa' }}>
-             <h4 style={{ margin: '0 0 8px 0', fontSize: '11pt', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+          <div style={{ border: '1.5px solid #000', padding: '20px', borderRadius: '4px', background: '#f8fafc' }}>
+             <h4 style={{ margin: '0 0 12px 0', fontSize: '11pt', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
                 <ClipboardCheck size={18} /> ثانياً: التوصيات الاستراتيجية والتحليل الفني
              </h4>
-             <p style={{ fontSize: '10pt', lineHeight: '1.5', color: '#111', margin: '0 0 12px 0', textAlign: 'justify' }}>
-                {advice?.summary || "تم إجراء موازنة القبول بناءً على معايير الجودة الأكاديمية ونصاب المدربين. تشير البيانات إلى استقرار توزيع العبء التدريبي مع مراعاة التباين في أعداد المدربين بين التخصصات."}
-             </p>
-             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+             <div style={{ borderBottom: '1px solid #000', marginBottom: '15px', paddingBottom: '10px' }}>
+               <p style={{ fontSize: '10.5pt', lineHeight: '1.6', color: '#000', margin: 0, textAlign: 'justify' }}>
+                  {advice?.summary || "تم إجراء موازنة القبول بناءً على معايير الجودة الأكاديمية ونصاب المدربين. تشير البيانات إلى استقرار توزيع العبء التدريبي مع مراعاة التباين في أعداد المدربين بين التخصصات لضمان عدالة المخرجات."}
+               </p>
+             </div>
+             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 {(advice?.recommendations || [
-                   "موازنة نصاب الساعات لكل مدرب وفق اللائحة.",
-                   "توزيع الحصص العملية على المعامل المتاحة.",
-                   "التأكد من توفر المواد الاستهلاكية لكل تخصص.",
-                   "مراقبة جودة مخرجات التخصصات ذات الكثافة."
+                   "موازنة نصاب الساعات لكل مدرب وفق اللائحة المنظمة.",
+                   "توزيع الحصص العملية على المعامل المتاحة بكفاءة.",
+                   "التأكد من توفر المواد الاستهلاكية لكل تخصص مهني.",
+                   "مراقبة جودة مخرجات التخصصات ذات الكثافة العالية."
                 ]).slice(0, 4).map((rec, i) => (
-                   <div key={i} style={{ fontSize: '9pt', display: 'flex', gap: '8px', alignItems: 'start' }}>
-                      <span style={{ fontWeight: 'bold' }}>•</span> {rec}
+                   <div key={i} style={{ fontSize: '9.5pt', display: 'flex', gap: '8px', alignItems: 'start' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '12pt' }}>•</span> {rec}
                    </div>
                 ))}
              </div>
           </div>
 
-          {/* Formal Approval Section */}
-          <div style={{ position: 'absolute', bottom: '15mm', left: '15mm', right: '15mm', borderTop: '2px solid #000', paddingTop: '15px' }}>
-             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                <div style={{ textAlign: 'center', width: '30%' }}>
-                   <p style={{ fontSize: '10pt', fontWeight: 'bold', margin: '0 0 40px 0' }}>إعداد/ م. عبدالله الزهراني</p>
-                   <p style={{ fontSize: '9pt', color: '#666' }}>توقيع معد التقرير</p>
-                </div>
-                <div style={{ textAlign: 'center', width: '30%' }}>
-                   <p style={{ fontSize: '10pt', fontWeight: 'bold', margin: '0 0 40px 0' }}>رئيس قسم الميكانيكا</p>
-                   <p style={{ fontSize: '9pt', color: '#666' }}>الختم والتوقيع المعتمد</p>
-                </div>
-                <div style={{ textAlign: 'center', width: '30%' }}>
-                   <p style={{ fontSize: '10pt', fontWeight: 'bold', margin: '0 0 40px 0' }}>وكيل شؤون المتدربين</p>
-                   <p style={{ fontSize: '9pt', color: '#666' }}>الاعتماد النهائي</p>
-                </div>
-             </div>
-             <div style={{ marginTop: '20px', textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '5px' }}>
-                <p style={{ fontSize: '8pt', color: '#999', margin: 0 }}>تم إنشاء هذا التقرير آلياً بواسطة نظام METRIC HUB - كافة الحقوق محفوظة © {new Date().getFullYear()}</p>
-             </div>
+          {/* Minimal Engineering Footer */}
+          <div style={{ position: 'absolute', bottom: '10mm', left: '15mm', right: '15mm', borderTop: '1px solid #000', paddingTop: '10px', textAlign: 'center' }}>
+             <p style={{ fontSize: '8pt', color: '#333', margin: 0, fontWeight: 'bold' }}>
+               نظام METRIC HUB | م. عبدالله الزهراني | قسم التقنية الميكانيكية
+             </p>
+             <p style={{ fontSize: '7pt', color: '#666', margin: '2px 0 0 0' }}>تم إنشاء هذا التقرير هندسياً لدعم اتخاذ القرار وتوزيع القبول © {new Date().getFullYear()}</p>
           </div>
 
         </div>
@@ -243,7 +240,7 @@ const App: React.FC = () => {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => window.print()}
-            className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-black transition-all text-sm font-bold shadow-xl active:scale-95"
+            className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl hover:bg-black transition-all text-sm font-bold shadow-xl active:scale-95"
           >
             <Printer size={18} />
             <span>طباعة التقرير الهندسي</span>
