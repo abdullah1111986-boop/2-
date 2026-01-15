@@ -31,22 +31,30 @@
         border-radius: 10px;
       }
       
-      /* إعدادات حاوية التقرير المخفية */
-      .pdf-container-hidden {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 210mm;
-        z-index: -1000;
-        visibility: hidden;
-        height: 0;
-        overflow: hidden;
-      }
-
-      /* تنسيق خاص للطباعة */
+      /* تنسيق خاص للطباعة والتقرير */
       @media print {
         .no-print { display: none !important; }
         .print-only { display: block !important; }
+        body { background: white !important; margin: 0 !important; padding: 0 !important; }
+        #printable-report {
+          display: block !important;
+          width: 100% !important;
+          height: 100% !important;
+          visibility: visible !important;
+          position: relative !important;
+          left: 0 !important;
+          top: 0 !important;
+        }
+      }
+
+      /* حاوية التقرير المخفية برمجياً */
+      .pdf-container-hidden {
+        position: absolute;
+        top: 0;
+        left: -9999px;
+        width: 210mm;
+        z-index: -1;
+        visibility: hidden;
       }
     </style>
     <script type="importmap">
