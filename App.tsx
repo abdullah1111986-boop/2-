@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid 
+  BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid, Tooltip 
 } from 'recharts';
 import { 
   Settings, Users, Briefcase, BarChart3, PieChart as PieIcon, Sparkles, Printer, RefreshCcw, UserCheck, 
@@ -20,7 +20,6 @@ const App: React.FC = () => {
   const [result, setResult] = useState<DistributionResult | null>(null);
   const [advice, setAdvice] = useState<GeminiAdvice | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const reportRef = useRef<HTMLDivElement>(null);
 
   const addSpecialization = () => {
     const newId = Math.random().toString(36).substr(2, 9);
@@ -87,7 +86,7 @@ const App: React.FC = () => {
       
       {/* 📄 OFFICIAL ENGINEERING REPORT (Visible only on Print) */}
       <div id="printable-report" className="print-only" dir="rtl">
-        <div style={{ width: '210mm', minHeight: '280mm', padding: '15mm', background: 'white', position: 'relative' }}>
+        <div style={{ width: '210mm', padding: '10mm 15mm', background: 'white', margin: '0 auto' }}>
           
           {/* Official Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px double #000', paddingBottom: '10px', marginBottom: '20px' }}>
@@ -97,90 +96,106 @@ const App: React.FC = () => {
               <p style={{ margin: 0 }}>الكلية التقنية - قسم التقنية الميكانيكية</p>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <h1 style={{ fontSize: '16pt', fontWeight: '900', margin: 0 }}>تقرير توزيع القبول الهندسي</h1>
-              <p style={{ fontSize: '10pt', color: '#333' }}>نموذج توزيع المقاعد المعتمد بناءً على الكادر التدريبي</p>
+              <h1 style={{ fontSize: '18pt', fontWeight: '900', margin: 0 }}>تقرير توزيع القبول الهندسي</h1>
+              <p style={{ fontSize: '10pt', color: '#000', marginTop: '5px' }}>نموذج توزيع المقاعد المعتمد بناءً على الكادر التدريبي</p>
             </div>
-            <div style={{ textAlign: 'left', fontSize: '9pt', color: '#333' }}>
+            <div style={{ textAlign: 'left', fontSize: '10pt', color: '#000' }}>
               <p style={{ margin: 0 }}>التاريخ: {new Date().toLocaleDateString('ar-SA')}</p>
             </div>
           </div>
 
           {/* Report Metadata */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '25px' }}>
-            <div style={{ border: '1.5px solid #000', padding: '10px', textAlign: 'center' }}>
-              <p style={{ fontSize: '9pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>إجمالي المقبولين</p>
-              <p style={{ fontSize: '14pt', fontWeight: '900', margin: 0 }}>{totalTrainees}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '25px' }}>
+            <div style={{ border: '2px solid #000', padding: '12px', textAlign: 'center' }}>
+              <p style={{ fontSize: '10pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>إجمالي المقبولين</p>
+              <p style={{ fontSize: '16pt', fontWeight: '900', margin: 0 }}>{totalTrainees}</p>
             </div>
-            <div style={{ border: '1.5px solid #000', padding: '10px', textAlign: 'center' }}>
-              <p style={{ fontSize: '9pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>إجمالي المدربين</p>
-              <p style={{ fontSize: '14pt', fontWeight: '900', margin: 0 }}>{result?.totalTrainers}</p>
+            <div style={{ border: '2px solid #000', padding: '12px', textAlign: 'center' }}>
+              <p style={{ fontSize: '10pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>إجمالي المدربين</p>
+              <p style={{ fontSize: '16pt', fontWeight: '900', margin: 0 }}>{result?.totalTrainers}</p>
             </div>
-            <div style={{ border: '1.5px solid #000', padding: '10px', textAlign: 'center' }}>
-              <p style={{ fontSize: '9pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>النصاب المعياري</p>
-              <p style={{ fontSize: '14pt', fontWeight: '900', margin: 0 }}>{result?.averageRatio.toFixed(1)} <span style={{fontSize: '8pt'}}>ط/م</span></p>
+            <div style={{ border: '2px solid #000', padding: '12px', textAlign: 'center' }}>
+              <p style={{ fontSize: '10pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>النصاب المعياري</p>
+              <p style={{ fontSize: '16pt', fontWeight: '900', margin: 0 }}>{result?.averageRatio.toFixed(1)} <span style={{fontSize: '9pt'}}>ط/م</span></p>
             </div>
-            <div style={{ border: '1.5px solid #000', padding: '10px', textAlign: 'center' }}>
-              <p style={{ fontSize: '9pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>كفاءة الموازنة</p>
-              <p style={{ fontSize: '14pt', fontWeight: '900', margin: 0 }}>{advice?.efficiencyScore || '92'}%</p>
+            <div style={{ border: '2px solid #000', padding: '12px', textAlign: 'center' }}>
+              <p style={{ fontSize: '10pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>كفاءة الموازنة</p>
+              <p style={{ fontSize: '16pt', fontWeight: '900', margin: 0 }}>{advice?.efficiencyScore || '92'}%</p>
             </div>
           </div>
 
           {/* Detailed Distribution Table */}
-          <div style={{ marginBottom: '25px' }}>
-            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderRight: '5px solid #000', paddingRight: '10px', marginBottom: '10px', background: '#f8fafc', border: '1px solid #000', borderRightWidth: '5px', padding: '8px' }}>أولاً: بيانات توزيع المقاعد التدريبية</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
+          <div style={{ marginBottom: '30px' }}>
+            <h3 style={{ fontSize: '13pt', fontWeight: 'bold', borderRight: '6px solid #000', paddingRight: '12px', marginBottom: '12px', background: '#f8fafc', border: '2px solid #000', borderRightWidth: '6px', padding: '10px' }}>أولاً: بيانات توزيع المقاعد التدريبية</h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11pt' }}>
               <thead>
-                <tr style={{ background: '#f1f5f9', color: '#000' }}>
-                  <th style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'right' }}>مسمى التخصص</th>
-                  <th style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center' }}>عدد أعضاء هيئة التدريب</th>
-                  <th style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center' }}>النسبة المئوية العادلة</th>
-                  <th style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center' }}>إجمالي القبول المعتمد</th>
+                <tr style={{ background: '#e2e8f0', color: '#000' }}>
+                  <th style={{ border: '2px solid #000', padding: '14px', textAlign: 'right' }}>مسمى التخصص</th>
+                  <th style={{ border: '2px solid #000', padding: '14px', textAlign: 'center' }}>عدد أعضاء هيئة التدريب</th>
+                  <th style={{ border: '2px solid #000', padding: '14px', textAlign: 'center' }}>النسبة المئوية العادلة</th>
+                  <th style={{ border: '2px solid #000', padding: '14px', textAlign: 'center', fontWeight: '900' }}>إجمالي القبول المعتمد</th>
                 </tr>
               </thead>
               <tbody>
                 {result?.specs.map((s) => (
                   <tr key={s.id}>
-                    <td style={{ border: '1.5px solid #000', padding: '12px', fontWeight: 'bold' }}>{s.name}</td>
-                    <td style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center' }}>{s.trainersCount}</td>
-                    <td style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center' }}>{s.percentage}%</td>
-                    <td style={{ border: '1.5px solid #000', padding: '12px', textAlign: 'center', fontWeight: '900' }}>{s.traineesCount}</td>
+                    <td style={{ border: '2px solid #000', padding: '14px', fontWeight: 'bold' }}>{s.name}</td>
+                    <td style={{ border: '2px solid #000', padding: '14px', textAlign: 'center' }}>{s.trainersCount}</td>
+                    <td style={{ border: '2px solid #000', padding: '14px', textAlign: 'center' }}>{s.percentage}%</td>
+                    <td style={{ border: '2px solid #000', padding: '14px', textAlign: 'center', fontWeight: '900', fontSize: '13pt' }}>{s.traineesCount}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          {/* Technical Visuals Section - FIXED FOR PRINT VISIBILITY */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px', marginBottom: '25px', minHeight: '220px' }}>
-             <div style={{ border: '1.5px solid #000', padding: '15px', borderRadius: '4px', background: '#fff' }}>
-                <p style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '15px', color: '#000' }}>مخطط مقارنة الطاقة الاستيعابية للتخصصات</p>
-                <div style={{ width: '100%', height: '160px' }}>
+          {/* Technical Visuals Section - ENHANCED FOR PRINT SHARPNESS */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '25px', marginBottom: '30px' }}>
+             <div style={{ border: '2px solid #000', padding: '20px', borderRadius: '4px', background: '#fff', height: '280px' }}>
+                <p style={{ fontSize: '11pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '20px', color: '#000' }}>مخطط مقارنة الطاقة الاستيعابية للتخصصات</p>
+                <div style={{ width: '100%', height: '200px' }}>
                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#666" />
-                        <XAxis dataKey="name" tick={{fontSize: 9, fontWeight: 'bold', fill: '#000'}} axisLine={{ stroke: '#000' }} />
-                        <YAxis tick={{fontSize: 9, fill: '#000'}} axisLine={{ stroke: '#000' }} />
-                        <Bar dataKey="count" fill="#1e293b" radius={[2, 2, 0, 0]} barSize={35} isAnimationActive={false} />
+                      <BarChart data={chartData} margin={{ top: 5, right: 10, left: -15, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="0" vertical={false} stroke="#333" strokeWidth={1} />
+                        <XAxis 
+                           dataKey="name" 
+                           tick={{fontSize: 10, fontWeight: 'bold', fill: '#000'}} 
+                           axisLine={{ stroke: '#000', strokeWidth: 2 }} 
+                           interval={0}
+                        />
+                        <YAxis 
+                           tick={{fontSize: 10, fontWeight: 'bold', fill: '#000'}} 
+                           axisLine={{ stroke: '#000', strokeWidth: 2 }} 
+                        />
+                        <Bar 
+                           dataKey="count" 
+                           fill="#000" 
+                           radius={[0, 0, 0, 0]} 
+                           barSize={40} 
+                           isAnimationActive={false} 
+                        />
                       </BarChart>
                    </ResponsiveContainer>
                 </div>
              </div>
-             <div style={{ border: '1.5px solid #000', padding: '15px', borderRadius: '4px', background: '#fff' }}>
-                <p style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '15px', color: '#000' }}>تحليل المحاضرات التدريبية النسبية</p>
-                <div style={{ width: '100%', height: '160px' }}>
+             <div style={{ border: '2px solid #000', padding: '20px', borderRadius: '4px', background: '#fff', height: '280px' }}>
+                <p style={{ fontSize: '11pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '20px', color: '#000' }}>تحليل المحاضرات التدريبية النسبية</p>
+                <div style={{ width: '100%', height: '200px' }}>
                    <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie 
                           data={pieData} 
-                          innerRadius={40} 
-                          outerRadius={65} 
-                          paddingAngle={3} 
+                          innerRadius={50} 
+                          outerRadius={80} 
+                          paddingAngle={0} 
                           dataKey="value" 
                           isAnimationActive={false}
                           stroke="#000"
-                          strokeWidth={1}
+                          strokeWidth={2}
                         >
-                          {pieData.map((_, index) => <Cell key={index} fill={index % 2 === 0 ? '#0f172a' : '#475569'} />)}
+                          {pieData.map((_, index) => (
+                             <Cell key={index} fill={index % 2 === 0 ? '#000' : '#666'} />
+                          ))}
                         </Pie>
                       </PieChart>
                    </ResponsiveContainer>
@@ -189,35 +204,35 @@ const App: React.FC = () => {
           </div>
 
           {/* AI Engineering Recommendations */}
-          <div style={{ border: '1.5px solid #000', padding: '20px', borderRadius: '4px', background: '#f8fafc' }}>
-             <h4 style={{ margin: '0 0 12px 0', fontSize: '11pt', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
-                <ClipboardCheck size={18} /> ثانياً: التوصيات الاستراتيجية والتحليل الفني
+          <div style={{ border: '2px solid #000', padding: '25px', borderRadius: '4px', background: '#f8fafc' }}>
+             <h4 style={{ margin: '0 0 15px 0', fontSize: '12pt', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+                <ClipboardCheck size={20} /> ثانياً: التوصيات الاستراتيجية والتحليل الفني
              </h4>
-             <div style={{ borderBottom: '1px solid #000', marginBottom: '15px', paddingBottom: '10px' }}>
-               <p style={{ fontSize: '10.5pt', lineHeight: '1.6', color: '#000', margin: 0, textAlign: 'justify' }}>
-                  {advice?.summary || "تم إجراء موازنة القبول بناءً على معايير الجودة الأكاديمية ونصاب المدربين. تشير البيانات إلى استقرار توزيع العبء التدريبي مع مراعاة التباين في أعداد المدربين بين التخصصات لضمان عدالة المخرجات."}
+             <div style={{ borderBottom: '2px solid #000', marginBottom: '18px', paddingBottom: '12px' }}>
+               <p style={{ fontSize: '11pt', lineHeight: '1.7', color: '#000', margin: 0, textAlign: 'justify', fontWeight: '500' }}>
+                  {advice?.summary || "تم إجراء موازنة القبول بناءً على معايير الجودة الأكاديمية ونصاب المدربين. تشير البيانات إلى استقرار توزيع العبء التدريبي مع مراعاة التباين في أعداد المدربين بين التخصصات لضمان عدالة المخرجات التدريبية وكفاءة تشغيل المعامل الميكانيكية."}
                </p>
              </div>
-             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 {(advice?.recommendations || [
                    "موازنة نصاب الساعات لكل مدرب وفق اللائحة المنظمة.",
                    "توزيع المحاضرات التدريبية العملية على المعامل المتاحة بكفاءة.",
                    "التأكد من توفر المواد الاستهلاكية لكل تخصص مهني.",
                    "مراقبة جودة مخرجات التخصصات ذات الكثافة العالية."
                 ]).slice(0, 4).map((rec, i) => (
-                   <div key={i} style={{ fontSize: '9.5pt', display: 'flex', gap: '8px', alignItems: 'start' }}>
-                      <span style={{ fontWeight: 'bold', fontSize: '12pt' }}>•</span> {rec}
+                   <div key={i} style={{ fontSize: '10.5pt', display: 'flex', gap: '10px', alignItems: 'start', color: '#000' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '14pt', lineHeight: '1' }}>•</span> {rec}
                    </div>
                 ))}
              </div>
           </div>
 
           {/* Minimal Engineering Footer */}
-          <div style={{ position: 'absolute', bottom: '10mm', left: '15mm', right: '15mm', borderTop: '1px solid #000', paddingTop: '10px', textAlign: 'center' }}>
-             <p style={{ fontSize: '8pt', color: '#333', margin: 0, fontWeight: 'bold' }}>
+          <div style={{ borderTop: '2px solid #000', marginTop: '40px', paddingTop: '15px', textAlign: 'center' }}>
+             <p style={{ fontSize: '10pt', color: '#000', margin: 0, fontWeight: 'bold' }}>
                نظام METRIC HUB | م. عبدالله الزهراني | قسم التقنية الميكانيكية
              </p>
-             <p style={{ fontSize: '7pt', color: '#666', margin: '2px 0 0 0' }}>تم إنشاء هذا التقرير هندسياً لدعم اتخاذ القرار وتوزيع القبول © {new Date().getFullYear()}</p>
+             <p style={{ fontSize: '8pt', color: '#333', margin: '5px 0 0 0' }}>تم إنشاء هذا التقرير هندسياً لدعم اتخاذ القرار وتوزيع القبول © {new Date().getFullYear()}</p>
           </div>
 
         </div>
@@ -243,7 +258,7 @@ const App: React.FC = () => {
             className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl hover:bg-black transition-all text-sm font-bold shadow-xl active:scale-95"
           >
             <Printer size={18} />
-            <span>طباعة التقرير الهندسي</span>
+            <span>طباعة التقرير</span>
           </button>
           <div className="hidden lg:flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-2xl text-slate-700 text-xs font-bold border border-slate-200">
              <UserCheck size={16} className="text-blue-600" />
@@ -444,7 +459,7 @@ const App: React.FC = () => {
 
       {/* FLOATING ACTION BUTTONS (Cleaned up - focus on Print) */}
       <div className="fixed bottom-12 left-12 flex flex-col gap-6 no-print">
-        <button onClick={() => window.print()} className="bg-slate-900 text-white p-6 rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.4)] hover:bg-black hover:-translate-y-2 transition-all flex items-center justify-center group active:scale-95" title="طباعة التقرير الهندسي المعتمد">
+        <button onClick={() => window.print()} className="bg-slate-900 text-white p-6 rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.4)] hover:bg-black hover:-translate-y-2 transition-all flex items-center justify-center group active:scale-95" title="طباعة التقرير">
           <Printer size={32} />
         </button>
       </div>

@@ -31,6 +31,11 @@
         border-radius: 10px;
       }
       
+      /* إعدادات العرض الافتراضية */
+      #printable-report {
+        display: none;
+      }
+
       /* إعدادات الطباعة للتقرير الهندسي */
       @media print {
         .no-print { display: none !important; }
@@ -47,33 +52,30 @@
 
         #printable-report {
           display: block !important;
-          width: 210mm !important;
-          height: auto !important;
           visibility: visible !important;
-          position: relative !important;
+          width: 100% !important;
+          height: auto !important;
           margin: 0 !important;
           padding: 0 !important;
-          z-index: 9999 !important;
+          position: static !important;
         }
 
         @page {
           size: A4;
-          margin: 0mm;
+          margin: 15mm 10mm;
         }
 
         /* تحسين وضوح الرسوم البيانية SVG عند الطباعة */
         svg {
-          shape-rendering: geometricPrecision;
-          text-rendering: geometricPrecision;
+          shape-rendering: geometricPrecision !important;
+          text-rendering: optimizeLegibility !important;
+          image-rendering: -webkit-optimize-contrast !important;
         }
-      }
 
-      /* إخفاء التقرير في العرض العادي مع الحفاظ على الأبعاد للرسوم البيانية */
-      #printable-report {
-        position: absolute;
-        left: -9999px;
-        top: -9999px;
-        visibility: hidden;
+        /* منع الفراغات غير المرغوب فيها */
+        html, body {
+          height: auto !important;
+        }
       }
     </style>
     <script type="importmap">
