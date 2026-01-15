@@ -2,16 +2,34 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { DistributionResult } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// وظيفة آمنة للحصول على مفتاح الـ API لتجنب خطأ "process is not defined" في المتصفح
+const getApiKey = () => {
+  try {
+    return typeof process !== 'undefined' ? process.env.API_KEY || '' : '';
+  } catch {
+    return '';
+  }
+};
+
+const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 export const getSmartAdvice = async (data: DistributionResult) => {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    return {
+      summary: "مفتاح الـ API غير متوفر حالياً. يرجى التأكد من إعدادات البيئة.",
+      recommendations: ["يرجى إعداد مفتاح Google Gemini لاستخدام ميزة التحليل الذكي."],
+      efficiencyScore: 0
+    };
+  }
+
   try {
     const specsDescription = data.specs.map(s => 
       `- تخصص ${s.name}: عدد المدربين ${s.trainersCount}، عدد المتدربين المقترح ${s.traineesCount} (${s.percentage}%).`
     ).join('\n');
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.5-flash-lite-latest',
       contents: `بصفتك خبير في الإدارة الأكاديمية والتقنية، قم بتحليل التوزيع التالي لقسم التقنية الميكانيكية:
       
       إجمالي المتدربين المستهدف: ${data.totalTrainees}
@@ -44,9 +62,9 @@ export const getSmartAdvice = async (data: DistributionResult) => {
   } catch (error) {
     console.error("Gemini API Error:", error);
     return {
-      summary: "عذراً، حدث خطأ أثناء جلب النصائح الذكية. يرجى مراجعة التوزيع يدوياً.",
-      recommendations: ["تأكد من عدم تجاوز النصاب التدريبي المعتمد.", "راجع خطة القبول السنوية بالتنسيق مع رؤساء التخصصات."],
-      efficiencyScore: 0
+      summary: "حدث خطأ أثناء تحليل البيانات ذكياً. يرجى مراجعة التوزيع يدوياً وفقاً لمعايير القسم.",
+      recommendations: ["تأكد من موازنة نصاب المدربين حسب اللوائح.", "راجع الطاقة الاستيعابية للقاعات والمعامل."],
+      efficiencyScore: 50
     };
   }
 };
