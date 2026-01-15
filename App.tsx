@@ -149,60 +149,8 @@ const App: React.FC = () => {
             </table>
           </div>
 
-          {/* Technical Visuals Section - ENHANCED FOR PRINT SHARPNESS */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '25px', marginBottom: '30px' }}>
-             <div style={{ border: '2px solid #000', padding: '20px', borderRadius: '4px', background: '#fff', height: '240px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ width: '100%', height: '200px' }}>
-                   <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={chartData} margin={{ top: 5, right: 10, left: -15, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="0" vertical={false} stroke="#333" strokeWidth={1} />
-                        <XAxis 
-                           dataKey="name" 
-                           tick={{fontSize: 10, fontWeight: 'bold', fill: '#000'}} 
-                           axisLine={{ stroke: '#000', strokeWidth: 2 }} 
-                           interval={0}
-                        />
-                        <YAxis 
-                           tick={{fontSize: 10, fontWeight: 'bold', fill: '#000'}} 
-                           axisLine={{ stroke: '#000', strokeWidth: 2 }} 
-                        />
-                        <Bar 
-                           dataKey="count" 
-                           fill="#000" 
-                           radius={[0, 0, 0, 0]} 
-                           barSize={40} 
-                           isAnimationActive={false} 
-                        />
-                      </BarChart>
-                   </ResponsiveContainer>
-                </div>
-             </div>
-             <div style={{ border: '2px solid #000', padding: '20px', borderRadius: '4px', background: '#fff', height: '240px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ width: '100%', height: '200px' }}>
-                   <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie 
-                          data={pieData} 
-                          innerRadius={50} 
-                          outerRadius={80} 
-                          paddingAngle={0} 
-                          dataKey="value" 
-                          isAnimationActive={false}
-                          stroke="#000"
-                          strokeWidth={2}
-                        >
-                          {pieData.map((_, index) => (
-                             <Cell key={index} fill={index % 2 === 0 ? '#000' : '#666'} />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                   </ResponsiveContainer>
-                </div>
-             </div>
-          </div>
-
           {/* AI Engineering Recommendations */}
-          <div style={{ border: '2px solid #000', padding: '25px', borderRadius: '4px', background: '#f8fafc' }}>
+          <div style={{ border: '2px solid #000', padding: '25px', borderRadius: '4px', background: '#f8fafc', marginBottom: '30px' }}>
              <h4 style={{ margin: '0 0 15px 0', fontSize: '12pt', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
                 <ClipboardCheck size={20} /> ثانياً: التوصيات الاستراتيجية والتحليل الفني
              </h4>
@@ -226,7 +174,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Minimal Engineering Footer */}
-          <div style={{ borderTop: '2px solid #000', marginTop: '40px', paddingTop: '15px', textAlign: 'center' }}>
+          <div style={{ borderTop: '2px solid #000', marginTop: '20px', paddingTop: '15px', textAlign: 'center' }}>
              <p style={{ fontSize: '10pt', color: '#000', margin: 0, fontWeight: 'bold' }}>
                نظام METRIC HUB | م. عبدالله الزهراني | قسم التقنية الميكانيكية
              </p>
