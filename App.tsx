@@ -96,7 +96,7 @@ const App: React.FC = () => {
               <p style={{ margin: 0 }}>الكلية التقنية - قسم التقنية الميكانيكية</p>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <h1 style={{ fontSize: '18pt', fontWeight: '900', margin: 0 }}>تقرير توزيع القبول الهندسي</h1>
+              <h1 style={{ fontSize: '18pt', fontWeight: '900', margin: 0 }}>تقرير توزيع القبول</h1>
               <p style={{ fontSize: '10pt', color: '#000', marginTop: '5px' }}>نموذج توزيع المقاعد المعتمد بناءً على الكادر التدريبي</p>
             </div>
             <div style={{ textAlign: 'left', fontSize: '10pt', color: '#000' }}>
