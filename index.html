@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>نظام توزيع المتدربين الذكي | م. عبدالله الزهراني</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <style>
       body {
@@ -37,10 +38,20 @@
         transform: translateY(-4px);
         box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.05);
       }
+      /* إعدادات الطباعة والتقرير */
       @media print {
         .no-print { display: none !important; }
         .print-only { display: block !important; }
         body { background: white; }
+      }
+      #pdf-report {
+        width: 210mm;
+        min-height: 297mm;
+        padding: 15mm;
+        background: white;
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
       }
     </style>
     <script type="importmap">
@@ -63,7 +74,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- تشغيل التطبيق كـ Module -->
     <script type="module" src="./index.tsx"></script>
   </body>
 </html>
