@@ -13,8 +13,8 @@ import { getSmartAdvice } from './services/geminiService';
 
 const App: React.FC = () => {
   const [specs, setSpecs] = useState<SpecializationData[]>([
-    { id: '1', name: 'محركات ومركبات', trainersCount: 12, continuingTrainees: 45, expectedGraduates: 15 },
-    { id: '2', name: 'التصنيع والإنتاج', trainersCount: 18, continuingTrainees: 60, expectedGraduates: 20 }
+    { id: '1', name: 'محركات ومركبات', trainersCount: 12, continuingTrainees: 45, expectedGraduates: 15, assignedTrainers: 2 },
+    { id: '2', name: 'التصنيع والإنتاج', trainersCount: 18, continuingTrainees: 60, expectedGraduates: 20, assignedTrainers: 1 }
   ]);
   const [totalTrainees, setTotalTrainees] = useState<number>(120);
   const [result, setResult] = useState<DistributionResult | null>(null);
@@ -35,7 +35,7 @@ const App: React.FC = () => {
 
   const addSpecialization = () => {
     const newId = Math.random().toString(36).substr(2, 9);
-    setSpecs([...specs, { id: newId, name: `تخصص جديد ${specs.length + 1}`, trainersCount: 10, continuingTrainees: 0, expectedGraduates: 0 }]);
+    setSpecs([...specs, { id: newId, name: `تخصص جديد ${specs.length + 1}`, trainersCount: 10, continuingTrainees: 0, expectedGraduates: 0, assignedTrainers: 0 }]);
   };
 
   const removeSpecialization = (id: string) => {
@@ -84,7 +84,8 @@ const App: React.FC = () => {
         continuingTrainees: spec.continuingTrainees,
         expectedGraduates: spec.expectedGraduates,
         netContinuing: netContinuing,
-        totalTraineesInSpec: totalInSpec
+        totalTraineesInSpec: totalInSpec,
+        assignedTrainers: spec.assignedTrainers
       };
     });
 
@@ -161,30 +162,33 @@ const App: React.FC = () => {
           {/* Detailed Distribution Table */}
           <div style={{ marginBottom: '30px' }}>
             <h3 style={{ fontSize: '13pt', fontWeight: 'bold', borderRight: '6px solid #000', paddingRight: '12px', marginBottom: '12px', background: '#f8fafc', border: '2px solid #000', borderRightWidth: '6px', padding: '10px' }}>أولاً: بيانات توزيع المقاعد التدريبية</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '8pt' }}>
               <thead>
                 <tr style={{ background: '#e2e8f0', color: '#000' }}>
-                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'right' }}>التخصص</th>
-                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>المدربين</th>
-                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>المستمرين</th>
-                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>خريجين متوقعين</th>
-                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>القبول الجديد</th>
-                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'center', fontWeight: '900' }}>الإجمالي الفعلي</th>
+                  <th style={{ border: '2px solid #000', padding: '6px', textAlign: 'right' }}>التخصص</th>
+                  <th style={{ border: '2px solid #000', padding: '6px', textAlign: 'center' }}>المدربين</th>
+                  <th style={{ border: '2px solid #000', padding: '6px', textAlign: 'center' }}>مكلفين</th>
+                  <th style={{ border: '2px solid #000', padding: '6px', textAlign: 'center' }}>المستمرين</th>
+                  <th style={{ border: '2px solid #000', padding: '6px', textAlign: 'center' }}>خريجين</th>
+                  <th style={{ border: '2px solid #000', padding: '6px', textAlign: 'center' }}>القبول الجديد</th>
+                  <th style={{ border: '2px solid #000', padding: '6px', textAlign: 'center', fontWeight: '900' }}>الإجمالي الفعلي</th>
                 </tr>
               </thead>
               <tbody>
                 {result?.specs.map((s) => (
                   <tr key={s.id}>
-                    <td style={{ border: '2px solid #000', padding: '8px', fontWeight: 'bold' }}>{s.name}</td>
-                    <td style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>{s.trainersCount}</td>
-                    <td style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>{s.continuingTrainees}</td>
-                    <td style={{ border: '2px solid #000', padding: '8px', textAlign: 'center', color: '#be123c' }}>{s.expectedGraduates}</td>
-                    <td style={{ border: '2px solid #000', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>{s.traineesCount}</td>
-                    <td style={{ border: '2px solid #000', padding: '8px', textAlign: 'center', fontWeight: '900', fontSize: '11pt' }}>{s.totalTraineesInSpec}</td>
+                    <td style={{ border: '2px solid #000', padding: '6px', fontWeight: 'bold' }}>{s.name}</td>
+                    <td style={{ border: '2px solid #000', padding: '6px', textAlign: 'center' }}>{s.trainersCount}</td>
+                    <td style={{ border: '2px solid #000', padding: '6px', textAlign: 'center', color: '#64748b' }}>{s.assignedTrainers}</td>
+                    <td style={{ border: '2px solid #000', padding: '6px', textAlign: 'center' }}>{s.continuingTrainees}</td>
+                    <td style={{ border: '2px solid #000', padding: '6px', textAlign: 'center', color: '#be123c' }}>{s.expectedGraduates}</td>
+                    <td style={{ border: '2px solid #000', padding: '6px', textAlign: 'center', fontWeight: 'bold' }}>{s.traineesCount}</td>
+                    <td style={{ border: '2px solid #000', padding: '6px', textAlign: 'center', fontWeight: '900', fontSize: '10pt' }}>{s.totalTraineesInSpec}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            <p style={{ fontSize: '8pt', color: '#64748b', marginTop: '10px', fontStyle: 'italic' }}>* ملاحظة: عدد المدربين المكلفين هو معلومة إرشادية ولا يدخل في حسابات التوزيع.</p>
           </div>
 
           {/* AI Engineering Recommendations */}
@@ -306,11 +310,18 @@ const App: React.FC = () => {
                       
                       <input type="text" value={spec.name} onChange={(e) => updateSpec(spec.id, 'name', e.target.value)} className="w-full px-5 py-3.5 bg-white rounded-2xl border border-slate-200 text-sm font-black focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all shadow-sm"/>
                       
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <label className="text-[9px] font-bold text-slate-400 uppercase">المدربين</label>
                           <input type="number" value={spec.trainersCount} onChange={(e) => updateSpec(spec.id, 'trainersCount', Number(e.target.value))} className="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"/>
                         </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-slate-400 uppercase">مكلفين (إضافي)</label>
+                          <input type="number" value={spec.assignedTrainers} onChange={(e) => updateSpec(spec.id, 'assignedTrainers', Number(e.target.value))} className="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-500/20 transition-all text-slate-500"/>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <label className="text-[9px] font-bold text-slate-400 uppercase">المستمرين</label>
                           <input type="number" value={spec.continuingTrainees} onChange={(e) => updateSpec(spec.id, 'continuingTrainees', Number(e.target.value))} className="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"/>
@@ -374,13 +385,13 @@ const App: React.FC = () => {
                           <UserCheck size={12} /> {s.trainersCount} مدرب
                         </div>
                         <div className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1.5 rounded-lg flex items-center justify-center">
+                          {s.assignedTrainers} مكلف
+                        </div>
+                        <div className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1.5 rounded-lg flex items-center justify-center">
                           {s.continuingTrainees} مستمر
                         </div>
                         <div className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-1.5 rounded-lg flex items-center justify-center">
                           -{s.expectedGraduates} خريج
-                        </div>
-                        <div className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1.5 rounded-lg flex items-center justify-center">
-                          {s.netContinuing} صافي
                         </div>
                       </div>
                       <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">

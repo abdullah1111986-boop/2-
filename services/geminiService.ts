@@ -25,7 +25,7 @@ export const getSmartAdvice = async (data: DistributionResult) => {
 
   try {
     const specsDescription = data.specs.map(s => 
-      `- تخصص ${s.name}: مدربين ${s.trainersCount}، مستمرين ${s.continuingTrainees}، خريجين متوقعين ${s.expectedGraduates} (صافي مستمر ${s.netContinuing})، قبول جديد مقترح ${s.traineesCount} (إجمالي فعلي ${s.totalTraineesInSpec}).`
+      `- تخصص ${s.name}: مدربين ${s.trainersCount} (بالإضافة إلى ${s.assignedTrainers} مكلفين)، مستمرين ${s.continuingTrainees}، خريجين متوقعين ${s.expectedGraduates} (صافي مستمر ${s.netContinuing})، قبول جديد مقترح ${s.traineesCount} (إجمالي فعلي ${s.totalTraineesInSpec}).`
     ).join('\n');
 
     const response = await ai.models.generateContent({

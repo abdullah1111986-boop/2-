@@ -5,6 +5,7 @@ export interface SpecializationData {
   trainersCount: number;
   continuingTrainees: number;
   expectedGraduates: number;
+  assignedTrainers: number;
 }
 
 export interface SpecializationResult {
@@ -17,6 +18,7 @@ export interface SpecializationResult {
   expectedGraduates: number;
   netContinuing: number;
   totalTraineesInSpec: number;
+  assignedTrainers: number;
 }
 
 export interface DistributionResult {
