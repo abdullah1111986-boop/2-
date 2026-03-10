@@ -4,6 +4,7 @@ export interface SpecializationData {
   name: string;
   trainersCount: number;
   continuingTrainees: number;
+  expectedGraduates: number;
 }
 
 export interface SpecializationResult {
@@ -13,6 +14,8 @@ export interface SpecializationResult {
   percentage: number;
   trainersCount: number;
   continuingTrainees: number;
+  expectedGraduates: number;
+  netContinuing: number;
   totalTraineesInSpec: number;
 }
 

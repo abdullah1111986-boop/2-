@@ -13,8 +13,8 @@ import { getSmartAdvice } from './services/geminiService';
 
 const App: React.FC = () => {
   const [specs, setSpecs] = useState<SpecializationData[]>([
-    { id: '1', name: 'محركات ومركبات', trainersCount: 12, continuingTrainees: 45 },
-    { id: '2', name: 'التصنيع والإنتاج', trainersCount: 18, continuingTrainees: 60 }
+    { id: '1', name: 'محركات ومركبات', trainersCount: 12, continuingTrainees: 45, expectedGraduates: 15 },
+    { id: '2', name: 'التصنيع والإنتاج', trainersCount: 18, continuingTrainees: 60, expectedGraduates: 20 }
   ]);
   const [totalTrainees, setTotalTrainees] = useState<number>(120);
   const [result, setResult] = useState<DistributionResult | null>(null);
@@ -23,19 +23,19 @@ const App: React.FC = () => {
 
   const suggestIdealCapacity = () => {
     const totalTrainers = specs.reduce((acc, curr) => acc + curr.trainersCount, 0);
-    const totalContinuing = specs.reduce((acc, curr) => acc + curr.continuingTrainees, 0);
+    const totalNetContinuing = specs.reduce((acc, curr) => acc + (curr.continuingTrainees - curr.expectedGraduates), 0);
     if (totalTrainers === 0) return;
 
     // Target ratio is 20 (middle of 19-21)
     const targetTotalTrainees = totalTrainers * 20;
-    const suggestedNewAdmissions = Math.max(0, targetTotalTrainees - totalContinuing);
+    const suggestedNewAdmissions = Math.max(0, targetTotalTrainees - totalNetContinuing);
     
     setTotalTrainees(suggestedNewAdmissions);
   };
 
   const addSpecialization = () => {
     const newId = Math.random().toString(36).substr(2, 9);
-    setSpecs([...specs, { id: newId, name: `تخصص جديد ${specs.length + 1}`, trainersCount: 10, continuingTrainees: 0 }]);
+    setSpecs([...specs, { id: newId, name: `تخصص جديد ${specs.length + 1}`, trainersCount: 10, continuingTrainees: 0, expectedGraduates: 0 }]);
   };
 
   const removeSpecialization = (id: string) => {
@@ -49,18 +49,19 @@ const App: React.FC = () => {
 
   const calculateDistribution = useCallback(() => {
     const totalTrainers = specs.reduce((acc, curr) => acc + curr.trainersCount, 0);
-    const totalContinuing = specs.reduce((acc, curr) => acc + curr.continuingTrainees, 0);
+    const totalNetContinuing = specs.reduce((acc, curr) => acc + (curr.continuingTrainees - curr.expectedGraduates), 0);
     if (totalTrainers === 0) return;
 
-    // K is the target total trainees per trainer (new + continuing)
-    const K = (totalTrainees + totalContinuing) / totalTrainers;
+    // K is the target total trainees per trainer (new + net continuing)
+    const K = (totalTrainees + totalNetContinuing) / totalTrainers;
 
     let remainingNewTrainees = totalTrainees;
     const specResults: SpecializationResult[] = specs.map((spec, index) => {
+      const netContinuing = spec.continuingTrainees - spec.expectedGraduates;
       // Ideal new trainees for this spec to reach target ratio K
-      let count = Math.round(K * spec.trainersCount - spec.continuingTrainees);
+      let count = Math.round(K * spec.trainersCount - netContinuing);
       
-      // Ensure we don't assign negative trainees (if continuing already exceeds fair share)
+      // Ensure we don't assign negative trainees
       count = Math.max(0, count);
 
       if (index === specs.length - 1) {
@@ -71,7 +72,7 @@ const App: React.FC = () => {
         remainingNewTrainees -= count;
       }
 
-      const totalInSpec = count + spec.continuingTrainees;
+      const totalInSpec = count + netContinuing;
       const ratio = spec.trainersCount / totalTrainers;
 
       return {
@@ -81,6 +82,8 @@ const App: React.FC = () => {
         percentage: Math.round(ratio * 100),
         trainersCount: spec.trainersCount,
         continuingTrainees: spec.continuingTrainees,
+        expectedGraduates: spec.expectedGraduates,
+        netContinuing: netContinuing,
         totalTraineesInSpec: totalInSpec
       };
     });
@@ -89,7 +92,7 @@ const App: React.FC = () => {
       specs: specResults,
       totalTrainers,
       totalTrainees,
-      averageRatio: (totalTrainees + totalContinuing) / totalTrainers
+      averageRatio: (totalTrainees + totalNetContinuing) / totalTrainers
     });
   }, [specs, totalTrainees]);
 
@@ -158,24 +161,26 @@ const App: React.FC = () => {
           {/* Detailed Distribution Table */}
           <div style={{ marginBottom: '30px' }}>
             <h3 style={{ fontSize: '13pt', fontWeight: 'bold', borderRight: '6px solid #000', paddingRight: '12px', marginBottom: '12px', background: '#f8fafc', border: '2px solid #000', borderRightWidth: '6px', padding: '10px' }}>أولاً: بيانات توزيع المقاعد التدريبية</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt' }}>
               <thead>
                 <tr style={{ background: '#e2e8f0', color: '#000' }}>
-                  <th style={{ border: '2px solid #000', padding: '10px', textAlign: 'right' }}>مسمى التخصص</th>
-                  <th style={{ border: '2px solid #000', padding: '10px', textAlign: 'center' }}>المدربين</th>
-                  <th style={{ border: '2px solid #000', padding: '10px', textAlign: 'center' }}>المستمرين</th>
-                  <th style={{ border: '2px solid #000', padding: '10px', textAlign: 'center' }}>القبول الجديد</th>
-                  <th style={{ border: '2px solid #000', padding: '10px', textAlign: 'center', fontWeight: '900' }}>إجمالي المتدربين</th>
+                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'right' }}>التخصص</th>
+                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>المدربين</th>
+                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>المستمرين</th>
+                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>خريجين متوقعين</th>
+                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>القبول الجديد</th>
+                  <th style={{ border: '2px solid #000', padding: '8px', textAlign: 'center', fontWeight: '900' }}>الإجمالي الفعلي</th>
                 </tr>
               </thead>
               <tbody>
                 {result?.specs.map((s) => (
                   <tr key={s.id}>
-                    <td style={{ border: '2px solid #000', padding: '10px', fontWeight: 'bold' }}>{s.name}</td>
-                    <td style={{ border: '2px solid #000', padding: '10px', textAlign: 'center' }}>{s.trainersCount}</td>
-                    <td style={{ border: '2px solid #000', padding: '10px', textAlign: 'center' }}>{s.continuingTrainees}</td>
-                    <td style={{ border: '2px solid #000', padding: '10px', textAlign: 'center', fontWeight: 'bold' }}>{s.traineesCount}</td>
-                    <td style={{ border: '2px solid #000', padding: '10px', textAlign: 'center', fontWeight: '900', fontSize: '12pt' }}>{s.totalTraineesInSpec}</td>
+                    <td style={{ border: '2px solid #000', padding: '8px', fontWeight: 'bold' }}>{s.name}</td>
+                    <td style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>{s.trainersCount}</td>
+                    <td style={{ border: '2px solid #000', padding: '8px', textAlign: 'center' }}>{s.continuingTrainees}</td>
+                    <td style={{ border: '2px solid #000', padding: '8px', textAlign: 'center', color: '#be123c' }}>{s.expectedGraduates}</td>
+                    <td style={{ border: '2px solid #000', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>{s.traineesCount}</td>
+                    <td style={{ border: '2px solid #000', padding: '8px', textAlign: 'center', fontWeight: '900', fontSize: '11pt' }}>{s.totalTraineesInSpec}</td>
                   </tr>
                 ))}
               </tbody>
@@ -301,14 +306,18 @@ const App: React.FC = () => {
                       
                       <input type="text" value={spec.name} onChange={(e) => updateSpec(spec.id, 'name', e.target.value)} className="w-full px-5 py-3.5 bg-white rounded-2xl border border-slate-200 text-sm font-black focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all shadow-sm"/>
                       
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-3 gap-3">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase">المدربين</label>
-                          <input type="number" value={spec.trainersCount} onChange={(e) => updateSpec(spec.id, 'trainersCount', Number(e.target.value))} className="w-full px-4 py-2 bg-white rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"/>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase">المدربين</label>
+                          <input type="number" value={spec.trainersCount} onChange={(e) => updateSpec(spec.id, 'trainersCount', Number(e.target.value))} className="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"/>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase">المستمرين</label>
-                          <input type="number" value={spec.continuingTrainees} onChange={(e) => updateSpec(spec.id, 'continuingTrainees', Number(e.target.value))} className="w-full px-4 py-2 bg-white rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"/>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase">المستمرين</label>
+                          <input type="number" value={spec.continuingTrainees} onChange={(e) => updateSpec(spec.id, 'continuingTrainees', Number(e.target.value))} className="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"/>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-slate-400 uppercase">خريجين</label>
+                          <input type="number" value={spec.expectedGraduates} onChange={(e) => updateSpec(spec.id, 'expectedGraduates', Number(e.target.value))} className="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all text-red-600"/>
                         </div>
                       </div>
                       
@@ -360,16 +369,22 @@ const App: React.FC = () => {
                       </div>
                       <p className="text-slate-400 text-xs font-black uppercase mb-1.5 tracking-tighter truncate">{s.name}</p>
                       <h3 className="text-4xl font-black text-slate-900">{s.traineesCount} <span className="text-sm font-bold text-slate-400">جديد</span></h3>
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl">
-                          <UserCheck size={14} /> {s.trainersCount} مدرب
+                      <div className="grid grid-cols-2 gap-2 mt-4">
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 bg-slate-50 px-2 py-1.5 rounded-lg">
+                          <UserCheck size={12} /> {s.trainersCount} مدرب
                         </div>
-                        <div className="text-[11px] font-bold text-slate-400">
+                        <div className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1.5 rounded-lg flex items-center justify-center">
                           {s.continuingTrainees} مستمر
+                        </div>
+                        <div className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-1.5 rounded-lg flex items-center justify-center">
+                          -{s.expectedGraduates} خريج
+                        </div>
+                        <div className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1.5 rounded-lg flex items-center justify-center">
+                          {s.netContinuing} صافي
                         </div>
                       </div>
                       <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
-                        <span className="text-xs font-bold text-slate-500">الإجمالي:</span>
+                        <span className="text-xs font-bold text-slate-500">الإجمالي الفعلي:</span>
                         <span className="text-lg font-black text-slate-900">{s.totalTraineesInSpec}</span>
                       </div>
                     </motion.div>
