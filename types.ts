@@ -3,6 +3,7 @@ export interface SpecializationData {
   id: string;
   name: string;
   trainersCount: number;
+  continuingTrainees: number;
 }
 
 export interface SpecializationResult {
@@ -11,6 +12,8 @@ export interface SpecializationResult {
   traineesCount: number;
   percentage: number;
   trainersCount: number;
+  continuingTrainees: number;
+  totalTraineesInSpec: number;
 }
 
 export interface DistributionResult {

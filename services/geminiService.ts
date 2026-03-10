@@ -25,7 +25,7 @@ export const getSmartAdvice = async (data: DistributionResult) => {
 
   try {
     const specsDescription = data.specs.map(s => 
-      `- تخصص ${s.name}: عدد المدربين ${s.trainersCount}، عدد المتدربين المقترح ${s.traineesCount} (${s.percentage}%).`
+      `- تخصص ${s.name}: عدد المدربين ${s.trainersCount}، المتدربين المستمرين ${s.continuingTrainees}، القبول الجديد المقترح ${s.traineesCount} (إجمالي ${s.totalTraineesInSpec}).`
     ).join('\n');
 
     const response = await ai.models.generateContent({
@@ -34,12 +34,14 @@ export const getSmartAdvice = async (data: DistributionResult) => {
       
       إجمالي المتدربين المستهدف: ${data.totalTrainees}
       إجمالي عدد المدربين: ${data.totalTrainers}
-      متوسط نصيب المدرب: ${data.averageRatio.toFixed(2)} متدرب.
+      متوسط نصيب المدرب (النصاب): ${data.averageRatio.toFixed(2)} متدرب لكل مدرب.
+
+      ملاحظة هامة: المعيار المستهدف في القسم هو أن يكون النصاب بين 19 إلى 21 متدرب لكل مدرب.
 
       تفاصيل التخصصات:
       ${specsDescription}
 
-      حلل العبء التدريبي وقدم نصائح لتحسين الجودة التعليمية والعدالة في التوزيع بناءً على هذه الأرقام باللغة العربية. استخدم مصطلح "محاضرات تدريبية" بدلاً من "حصص".`,
+      حلل العبء التدريبي وقدم نصائح لتحسين الجودة التعليمية والعدالة في التوزيع بناءً على هذه الأرقام باللغة العربية. ركز على مدى توافق النصاب الحالي مع المعيار (19-21). استخدم مصطلح "محاضرات تدريبية" بدلاً من "حصص".`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {

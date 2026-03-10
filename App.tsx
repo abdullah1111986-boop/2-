@@ -13,17 +13,29 @@ import { getSmartAdvice } from './services/geminiService';
 
 const App: React.FC = () => {
   const [specs, setSpecs] = useState<SpecializationData[]>([
-    { id: '1', name: 'محركات ومركبات', trainersCount: 12 },
-    { id: '2', name: 'التصنيع والإنتاج', trainersCount: 18 }
+    { id: '1', name: 'محركات ومركبات', trainersCount: 12, continuingTrainees: 45 },
+    { id: '2', name: 'التصنيع والإنتاج', trainersCount: 18, continuingTrainees: 60 }
   ]);
   const [totalTrainees, setTotalTrainees] = useState<number>(120);
   const [result, setResult] = useState<DistributionResult | null>(null);
   const [advice, setAdvice] = useState<GeminiAdvice | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
+  const suggestIdealCapacity = () => {
+    const totalTrainers = specs.reduce((acc, curr) => acc + curr.trainersCount, 0);
+    const totalContinuing = specs.reduce((acc, curr) => acc + curr.continuingTrainees, 0);
+    if (totalTrainers === 0) return;
+
+    // Target ratio is 20 (middle of 19-21)
+    const targetTotalTrainees = totalTrainers * 20;
+    const suggestedNewAdmissions = Math.max(0, targetTotalTrainees - totalContinuing);
+    
+    setTotalTrainees(suggestedNewAdmissions);
+  };
+
   const addSpecialization = () => {
     const newId = Math.random().toString(36).substr(2, 9);
-    setSpecs([...specs, { id: newId, name: `تخصص جديد ${specs.length + 1}`, trainersCount: 10 }]);
+    setSpecs([...specs, { id: newId, name: `تخصص جديد ${specs.length + 1}`, trainersCount: 10, continuingTrainees: 0 }]);
   };
 
   const removeSpecialization = (id: string) => {
@@ -37,23 +49,39 @@ const App: React.FC = () => {
 
   const calculateDistribution = useCallback(() => {
     const totalTrainers = specs.reduce((acc, curr) => acc + curr.trainersCount, 0);
+    const totalContinuing = specs.reduce((acc, curr) => acc + curr.continuingTrainees, 0);
     if (totalTrainers === 0) return;
 
-    let remainingTrainees = totalTrainees;
+    // K is the target total trainees per trainer (new + continuing)
+    const K = (totalTrainees + totalContinuing) / totalTrainers;
+
+    let remainingNewTrainees = totalTrainees;
     const specResults: SpecializationResult[] = specs.map((spec, index) => {
-      const ratio = spec.trainersCount / totalTrainers;
-      let count = Math.round(totalTrainees * ratio);
+      // Ideal new trainees for this spec to reach target ratio K
+      let count = Math.round(K * spec.trainersCount - spec.continuingTrainees);
+      
+      // Ensure we don't assign negative trainees (if continuing already exceeds fair share)
+      count = Math.max(0, count);
+
       if (index === specs.length - 1) {
-        count = remainingTrainees;
+        count = remainingNewTrainees;
       } else {
-        remainingTrainees -= count;
+        // Don't assign more than what's left
+        count = Math.min(count, remainingNewTrainees);
+        remainingNewTrainees -= count;
       }
+
+      const totalInSpec = count + spec.continuingTrainees;
+      const ratio = spec.trainersCount / totalTrainers;
+
       return {
         id: spec.id,
         name: spec.name,
         traineesCount: count,
         percentage: Math.round(ratio * 100),
-        trainersCount: spec.trainersCount
+        trainersCount: spec.trainersCount,
+        continuingTrainees: spec.continuingTrainees,
+        totalTraineesInSpec: totalInSpec
       };
     });
 
@@ -61,7 +89,7 @@ const App: React.FC = () => {
       specs: specResults,
       totalTrainers,
       totalTrainees,
-      averageRatio: totalTrainees / totalTrainers
+      averageRatio: (totalTrainees + totalContinuing) / totalTrainers
     });
   }, [specs, totalTrainees]);
 
@@ -114,9 +142,12 @@ const App: React.FC = () => {
               <p style={{ fontSize: '10pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>إجمالي المدربين</p>
               <p style={{ fontSize: '16pt', fontWeight: '900', margin: 0 }}>{result?.totalTrainers}</p>
             </div>
-            <div style={{ border: '2px solid #000', padding: '12px', textAlign: 'center' }}>
+            <div style={{ border: '2px solid #000', padding: '12px', textAlign: 'center', background: result && result.averageRatio >= 19 && result.averageRatio <= 21 ? '#f0fdf4' : '#fff' }}>
               <p style={{ fontSize: '10pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>النصاب المعياري</p>
               <p style={{ fontSize: '16pt', fontWeight: '900', margin: 0 }}>{result?.averageRatio.toFixed(1)} <span style={{fontSize: '9pt'}}>ط/م</span></p>
+              {result && (result.averageRatio < 19 || result.averageRatio > 21) && (
+                <p style={{ fontSize: '7pt', color: '#b45309', margin: '2px 0 0 0', fontWeight: 'bold' }}>خارج النطاق (19-21)</p>
+              )}
             </div>
             <div style={{ border: '2px solid #000', padding: '12px', textAlign: 'center' }}>
               <p style={{ fontSize: '10pt', fontWeight: 'bold', margin: '0 0 5px 0' }}>كفاءة الموازنة</p>
@@ -127,22 +158,24 @@ const App: React.FC = () => {
           {/* Detailed Distribution Table */}
           <div style={{ marginBottom: '30px' }}>
             <h3 style={{ fontSize: '13pt', fontWeight: 'bold', borderRight: '6px solid #000', paddingRight: '12px', marginBottom: '12px', background: '#f8fafc', border: '2px solid #000', borderRightWidth: '6px', padding: '10px' }}>أولاً: بيانات توزيع المقاعد التدريبية</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11pt' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10pt' }}>
               <thead>
                 <tr style={{ background: '#e2e8f0', color: '#000' }}>
-                  <th style={{ border: '2px solid #000', padding: '14px', textAlign: 'right' }}>مسمى التخصص</th>
-                  <th style={{ border: '2px solid #000', padding: '14px', textAlign: 'center' }}>عدد أعضاء هيئة التدريب</th>
-                  <th style={{ border: '2px solid #000', padding: '14px', textAlign: 'center' }}>النسبة المئوية العادلة</th>
-                  <th style={{ border: '2px solid #000', padding: '14px', textAlign: 'center', fontWeight: '900' }}>إجمالي القبول المعتمد</th>
+                  <th style={{ border: '2px solid #000', padding: '10px', textAlign: 'right' }}>مسمى التخصص</th>
+                  <th style={{ border: '2px solid #000', padding: '10px', textAlign: 'center' }}>المدربين</th>
+                  <th style={{ border: '2px solid #000', padding: '10px', textAlign: 'center' }}>المستمرين</th>
+                  <th style={{ border: '2px solid #000', padding: '10px', textAlign: 'center' }}>القبول الجديد</th>
+                  <th style={{ border: '2px solid #000', padding: '10px', textAlign: 'center', fontWeight: '900' }}>إجمالي المتدربين</th>
                 </tr>
               </thead>
               <tbody>
                 {result?.specs.map((s) => (
                   <tr key={s.id}>
-                    <td style={{ border: '2px solid #000', padding: '14px', fontWeight: 'bold' }}>{s.name}</td>
-                    <td style={{ border: '2px solid #000', padding: '14px', textAlign: 'center' }}>{s.trainersCount}</td>
-                    <td style={{ border: '2px solid #000', padding: '14px', textAlign: 'center' }}>{s.percentage}%</td>
-                    <td style={{ border: '2px solid #000', padding: '14px', textAlign: 'center', fontWeight: '900', fontSize: '13pt' }}>{s.traineesCount}</td>
+                    <td style={{ border: '2px solid #000', padding: '10px', fontWeight: 'bold' }}>{s.name}</td>
+                    <td style={{ border: '2px solid #000', padding: '10px', textAlign: 'center' }}>{s.trainersCount}</td>
+                    <td style={{ border: '2px solid #000', padding: '10px', textAlign: 'center' }}>{s.continuingTrainees}</td>
+                    <td style={{ border: '2px solid #000', padding: '10px', textAlign: 'center', fontWeight: 'bold' }}>{s.traineesCount}</td>
+                    <td style={{ border: '2px solid #000', padding: '10px', textAlign: 'center', fontWeight: '900', fontSize: '12pt' }}>{s.totalTraineesInSpec}</td>
                   </tr>
                 ))}
               </tbody>
@@ -224,15 +257,35 @@ const App: React.FC = () => {
             
             <div className="space-y-8">
               <div className="space-y-3">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest block flex items-center gap-2">
-                  <Users size={14} /> إجمالي القبول المستهدف
-                </label>
+                <div className="flex justify-between items-end">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest block flex items-center gap-2">
+                    <Users size={14} /> إجمالي القبول المستهدف
+                  </label>
+                  <button 
+                    onClick={suggestIdealCapacity}
+                    className="text-[10px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg transition-colors"
+                  >
+                    <Sparkles size={10} /> اقتراح السعة المثالية (20:1)
+                  </button>
+                </div>
                 <div className="relative group">
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
                     <Calculator size={20} />
                   </div>
                   <input type="number" value={totalTrainees} onChange={(e) => setTotalTrainees(Number(e.target.value))} className="w-full pr-12 pl-4 py-4 rounded-[1.25rem] bg-slate-50 border border-slate-200 focus:ring-4 focus:ring-blue-500/10 focus:bg-white outline-none font-black text-2xl transition-all shadow-inner"/>
                 </div>
+                {result && (
+                  <div className={`text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-2 ${
+                    result.averageRatio >= 19 && result.averageRatio <= 21 
+                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
+                    : 'bg-amber-50 text-amber-600 border border-amber-100'
+                  }`}>
+                    <Info size={12} />
+                    {result.averageRatio >= 19 && result.averageRatio <= 21 
+                      ? 'النصاب الحالي ضمن النطاق المعياري (19-21)' 
+                      : `النصاب الحالي (${result.averageRatio.toFixed(1)}) خارج النطاق المستهدف (19-21)`}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-5 max-h-[480px] overflow-y-auto pr-2 custom-scrollbar">
@@ -247,6 +300,17 @@ const App: React.FC = () => {
                       </div>
                       
                       <input type="text" value={spec.name} onChange={(e) => updateSpec(spec.id, 'name', e.target.value)} className="w-full px-5 py-3.5 bg-white rounded-2xl border border-slate-200 text-sm font-black focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all shadow-sm"/>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase">المدربين</label>
+                          <input type="number" value={spec.trainersCount} onChange={(e) => updateSpec(spec.id, 'trainersCount', Number(e.target.value))} className="w-full px-4 py-2 bg-white rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"/>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase">المستمرين</label>
+                          <input type="number" value={spec.continuingTrainees} onChange={(e) => updateSpec(spec.id, 'continuingTrainees', Number(e.target.value))} className="w-full px-4 py-2 bg-white rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"/>
+                        </div>
+                      </div>
                       
                       <div className="space-y-2">
                         <div className="flex justify-between text-[10px] font-bold text-slate-400"><span>الحد الأدنى</span><span>الحد الأقصى</span></div>
@@ -295,17 +359,33 @@ const App: React.FC = () => {
                         </div>
                       </div>
                       <p className="text-slate-400 text-xs font-black uppercase mb-1.5 tracking-tighter truncate">{s.name}</p>
-                      <h3 className="text-4xl font-black text-slate-900">{s.traineesCount} <span className="text-sm font-bold text-slate-400">مقعد</span></h3>
-                      <div className="flex items-center gap-2 mt-4 text-[11px] font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl w-fit">
-                        <UserCheck size={14} /> طاقة تدريبية لـ {s.trainersCount} مدرب
+                      <h3 className="text-4xl font-black text-slate-900">{s.traineesCount} <span className="text-sm font-bold text-slate-400">جديد</span></h3>
+                      <div className="flex items-center justify-between mt-4">
+                        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl">
+                          <UserCheck size={14} /> {s.trainersCount} مدرب
+                        </div>
+                        <div className="text-[11px] font-bold text-slate-400">
+                          {s.continuingTrainees} مستمر
+                        </div>
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                        <span className="text-xs font-bold text-slate-500">الإجمالي:</span>
+                        <span className="text-lg font-black text-slate-900">{s.totalTraineesInSpec}</span>
                       </div>
                     </motion.div>
                   ))}
-                  <div className="bg-slate-900 p-8 rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] text-white relative overflow-hidden flex flex-col justify-center group">
+                  <div className={`p-8 rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] text-white relative overflow-hidden flex flex-col justify-center group transition-colors duration-500 ${
+                    result.averageRatio >= 19 && result.averageRatio <= 21 ? 'bg-emerald-900' : 'bg-slate-900'
+                  }`}>
                     <Activity size={120} className="absolute -top-6 -right-6 opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all duration-700" />
-                    <p className="text-slate-500 text-xs font-black uppercase mb-2 tracking-widest">معدل الكفاءة</p>
+                    <p className="text-slate-500 text-xs font-black uppercase mb-2 tracking-widest">معدل الكفاءة (النصاب)</p>
                     <h3 className="text-5xl font-black text-white">{result.averageRatio.toFixed(1)} <span className="text-sm font-medium text-slate-400">طالب/مدرب</span></h3>
-                    <p className="text-emerald-400 text-[10px] font-black mt-3 flex items-center gap-1"><ShieldCheck size={12} /> توزيع مثالي مستند للمعايير</p>
+                    <p className={`text-[10px] font-black mt-3 flex items-center gap-1 ${
+                      result.averageRatio >= 19 && result.averageRatio <= 21 ? 'text-emerald-400' : 'text-amber-400'
+                    }`}>
+                      <ShieldCheck size={12} /> 
+                      {result.averageRatio >= 19 && result.averageRatio <= 21 ? 'توزيع مثالي (19-21)' : 'توزيع يحتاج مراجعة النصاب'}
+                    </p>
                   </div>
                 </div>
 
