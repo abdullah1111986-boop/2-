@@ -30,7 +30,7 @@ export const getSmartAdvice = async (data: DistributionResult) => {
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-lite-latest',
-      contents: `بصفتك خبير في الإدارة الأكاديمية والتقنية، قم بتحليل التوزيع التالي لقسم التقنية الميكانيكية:
+      contents: `بصفتك خبير في الإدارة التدريبية والتقنية، قم بتحليل التوزيع التالي لقسم التقنية الميكانيكية:
       
       إجمالي المتدربين المستهدف: ${data.totalTrainees}
       إجمالي عدد المدربين: ${data.totalTrainers}
@@ -60,6 +60,9 @@ export const getSmartAdvice = async (data: DistributionResult) => {
       }
     });
 
+    if (!response.text) {
+      throw new Error("Empty response from Gemini API");
+    }
     return JSON.parse(response.text);
   } catch (error) {
     console.error("Gemini API Error:", error);

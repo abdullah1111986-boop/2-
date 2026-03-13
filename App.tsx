@@ -198,7 +198,7 @@ const App: React.FC = () => {
              </h4>
              <div style={{ borderBottom: '2px solid #000', marginBottom: '18px', paddingBottom: '12px' }}>
                <p style={{ fontSize: '11pt', lineHeight: '1.7', color: '#000', margin: 0, textAlign: 'justify', fontWeight: '500' }}>
-                  {advice?.summary || "تم إجراء موازنة القبول بناءً على معايير الجودة الأكاديمية ونصاب المدربين. تشير البيانات إلى استقرار توزيع العبء التدريبي مع مراعاة التباين في أعداد المدربين بين التخصصات لضمان عدالة المخرجات التدريبية وكفاءة تشغيل المعامل الميكانيكية."}
+                  {advice?.summary || "تم إجراء موازنة القبول بناءً على معايير الجودة التدريبية ونصاب المدربين. تشير البيانات إلى استقرار توزيع العبء التدريبي مع مراعاة التباين في أعداد المدربين بين التخصصات لضمان عدالة المخرجات التدريبية وكفاءة تشغيل المعامل الميكانيكية."}
                </p>
              </div>
              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
@@ -352,7 +352,7 @@ const App: React.FC = () => {
             <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-[80px] -mr-20 -mt-20 group-hover:bg-blue-500/20 transition-all duration-700"></div>
             <div className="relative z-10 space-y-5">
               <div className="flex items-center gap-3"><Sparkles size={24} className="text-blue-400" /><h3 className="font-black text-xl">تحليل Gemini الفني</h3></div>
-              <p className="text-sm text-slate-300 leading-relaxed font-medium">قم بمعالجة بيانات التوزيع عبر محرك الذكاء الاصطناعي لاستخراج تقرير استشاري يضمن أعلى معايير الاعتماد الأكاديمي.</p>
+              <p className="text-sm text-slate-300 leading-relaxed font-medium">قم بمعالجة بيانات التوزيع عبر محرك الذكاء الاصطناعي لاستخراج تقرير استشاري يضمن أعلى معايير الاعتماد التدريبي.</p>
               <button onClick={handleGetAdvice} disabled={loading} className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-xl text-white border border-white/20 font-black py-4.5 rounded-[1.25rem] transition-all flex items-center justify-center gap-3 disabled:opacity-50 hover:shadow-xl hover:border-white/30">
                 {loading ? <RefreshCcw className="animate-spin" size={20} /> : <><Sparkles size={20} /> <span>استشارة الخبير الذكي</span></>}
               </button>
